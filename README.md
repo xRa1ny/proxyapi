@@ -1,2 +1,1 @@
-# proxyapi
-the api you're looking for when developing minecraft bungeecord proxy plugins...
+# RProxyAPI
