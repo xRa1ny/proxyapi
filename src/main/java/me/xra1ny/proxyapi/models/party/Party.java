@@ -1,8 +1,8 @@
 package me.xra1ny.proxyapi.models.party;
 
+import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.models.user.RUser;
-import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -43,10 +43,8 @@ public final class Party {
         this.members.add(user);
 
         for(RUser member : this.members) {
-            member.getPlayer().sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + ChatColor.YELLOW + member.getPlayer().getName() + ChatColor.GRAY + " ist der Party " + ChatColor.GREEN + "beigetreten!"
-                    )
+            member.sendMessage(
+                    ChatColor.YELLOW + member.getPlayer().getName() + RPlugin.getInstance().getChatColor() + " ist der Party " + "beigetreten!"
             );
         }
     }
@@ -61,10 +59,8 @@ public final class Party {
         }
 
         for(RUser member : this.members) {
-            member.getPlayer().sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + ChatColor.YELLOW + user.getPlayer().getName() + ChatColor.GRAY + " hat die Party " + ChatColor.RED + "verlassen!"
-                    )
+            member.sendMessage(
+                    ChatColor.YELLOW + user.getPlayer().getName() + RPlugin.getInstance().getChatColor() + " hat die Party verlassen!"
             );
         }
 
@@ -74,11 +70,7 @@ public final class Party {
             final RUser last = this.members.get(0);
 
             this.members.remove(last);
-            last.getPlayer().sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + "Die Party wurde aufgrund unzureichender Spieler aufgelöst!"
-                    )
-            );
+            last.sendMessage("Die Party wurde aufgrund unzureichender Spieler aufgelöst!");
 
             return;
         }

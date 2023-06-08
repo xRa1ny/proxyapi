@@ -28,11 +28,7 @@ public class PartyManager {
         final Party party = new Party(leader);
 
         this.parties.add(party);
-        leader.getPlayer().sendMessage(
-                TextComponent.fromLegacyText(
-                        RPlugin.getInstance().getPrefix() + "Party erstellt!"
-                )
-        );
+        leader.sendMessage("Party erstellt!");
 
         return party;
     }

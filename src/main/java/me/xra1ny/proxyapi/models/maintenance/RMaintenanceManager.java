@@ -1,13 +1,11 @@
 package me.xra1ny.proxyapi.models.maintenance;
 
-import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.models.user.RUser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.xra1ny.proxyapi.RPlugin;
+import me.xra1ny.proxyapi.models.user.RUser;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-public class MaintenanceManager {
+public class RMaintenanceManager {
     /**
      * the message to display when a user gets kicked in result of ongoing maintenance
      */
@@ -32,7 +30,7 @@ public class MaintenanceManager {
     @Getter(onMethod = @__({ @NotNull, @Unmodifiable}))
     private final List<UUID> ignoredUsers = new ArrayList<>();
 
-    public MaintenanceManager() {
+    public RMaintenanceManager() {
         this.message = RPlugin.getInstance().getConfig().getString("maintenance.message");
         this.enabled = RPlugin.getInstance().getConfig().getBoolean("maintenance.enabled");
 
@@ -55,13 +53,7 @@ public class MaintenanceManager {
         RPlugin.getInstance().getConfig().set("maintenance.message", message);
         RPlugin.getInstance().saveConfig();
 
-        for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            player.sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + "Die Wartungsarbeiten Nachricht wurde angepasst!"
-                    )
-            );
-        }
+        RPlugin.broadcastMessage("Die Wartungsarbeiten Nachricht wurde angepasst!");
 
         this.message = message;
     }
@@ -89,16 +81,7 @@ public class MaintenanceManager {
             }
         }
 
-        for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            player.sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + "Die Wartungen wurden " + String.valueOf(enabled)
-                                    .replace("true", ChatColor.GREEN + "aktiviert!")
-                                    .replace("false", ChatColor.RED + "deaktiviert!"
-                                    )
-                    )
-            );
-        }
+        RPlugin.broadcastMessage("Die Wartungen wurden " + (enabled ? ChatColor.GREEN + "aktiviert!" : ChatColor.RED + "deaktiviert!"));
 
         this.enabled = enabled;
     }
@@ -120,13 +103,7 @@ public class MaintenanceManager {
         this.ignoredUsers.add(uuid);
 
         // TODO: Add filter (Send Message only to permitted Players)
-        for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            player.sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + ChatColor.YELLOW + uuid + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme " + ChatColor.GREEN + "hinzugefügt!"
-                    )
-            );
-        }
+        RPlugin.broadcastMessage(ChatColor.YELLOW + uuid.toString() + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme hinzugefügt!");
 
         updateConfig();
     }
@@ -143,13 +120,7 @@ public class MaintenanceManager {
         this.ignoredUsers.remove(uuid);
 
         // TODO: Add filter (Send Message only to permitted Players)
-        for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            player.sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + ChatColor.YELLOW + uuid + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme " + ChatColor.RED + "entfernt!"
-                    )
-            );
-        }
+        RPlugin.broadcastMessage(ChatColor.YELLOW + uuid.toString() + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme entfernt!");
 
         updateConfig();
     }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class UserManager {
+public class RUserManager {
     @Getter(onMethod = @__(@NotNull))
     private final Class<? extends RUser> userClass;
 
@@ -27,7 +27,7 @@ public class UserManager {
     @Getter(onMethod = @__(@NotNull))
     private final UserTimeoutHandler userTimeoutHandler;
 
-    public UserManager(@NotNull Class<? extends RUser> userClass, long userTimeout) {
+    public RUserManager(@NotNull Class<? extends RUser> userClass, long userTimeout) {
         this.userClass = userClass;
         this.userTimeoutHandler = new UserTimeoutHandler(userTimeout);;
         this.userTimeoutHandler.start();

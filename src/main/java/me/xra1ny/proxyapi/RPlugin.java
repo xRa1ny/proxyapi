@@ -7,12 +7,14 @@ import me.xra1ny.proxyapi.listeners.DefaultPluginListener;
 import me.xra1ny.proxyapi.models.color.HexCodeManager;
 import me.xra1ny.proxyapi.models.command.CommandManager;
 import me.xra1ny.proxyapi.models.listener.ListenerManager;
-import me.xra1ny.proxyapi.models.maintenance.MaintenanceManager;
+import me.xra1ny.proxyapi.models.maintenance.RMaintenanceManager;
 import me.xra1ny.proxyapi.models.party.PartyManager;
 import me.xra1ny.proxyapi.models.user.RUser;
+import me.xra1ny.proxyapi.models.user.RUserManager;
 import me.xra1ny.proxyapi.models.user.UserInputWindowManager;
-import me.xra1ny.proxyapi.models.user.UserManager;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -138,14 +140,12 @@ public abstract class RPlugin extends Plugin {
     /**
      * the user manager responsible for storing and managing all users of this plugin
      */
-    @Getter(onMethod = @__(@NotNull))
-    private UserManager userManager;
+    private RUserManager userManager;
 
     /**
      * the maintenance manager responsible for storing all maintenance related information and managing them
      */
-    @Getter(onMethod = @__(@NotNull))
-    private MaintenanceManager maintenanceManager;
+    private RMaintenanceManager maintenanceManager;
 
     /**
      * the user input window manager responsible for storing and managing all user input windows of this plugin
@@ -184,12 +184,15 @@ public abstract class RPlugin extends Plugin {
 
             RPlugin.instance = this;
 
+            final PluginInfo info = getClass().getDeclaredAnnotation(PluginInfo.class);
             Class<? extends RUser> userClass = RUser.class;
+            Class<? extends RUserManager> userManagerClass = RUserManager.class;
+            Class<? extends RMaintenanceManager> maintenanceManagerClass = RMaintenanceManager.class;
 
-            final PluginInfo pluginInfo = getClass().getDeclaredAnnotation(PluginInfo.class);
-
-            if(pluginInfo != null) {
-                userClass = pluginInfo.userClass();
+            if(info != null) {
+                userClass = info.userClass();
+                userManagerClass = info.userManagerClass();
+                maintenanceManagerClass = info.maintenanceManagerClass();
             }
 
             this.configFile = new File(getDataFolder(), "config.yml");
@@ -199,8 +202,8 @@ public abstract class RPlugin extends Plugin {
 
             this.listenerManager = new ListenerManager();
             this.commandManager = new CommandManager();
-            this.userManager = new UserManager(userClass, this.userTimeout);
-            this.maintenanceManager = new MaintenanceManager();
+            this.userManager = userManagerClass.getDeclaredConstructor(Class.class, long.class).newInstance(userClass, this.userTimeout);
+            this.maintenanceManager = maintenanceManagerClass.getDeclaredConstructor().newInstance();
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
@@ -368,5 +371,21 @@ public abstract class RPlugin extends Plugin {
         } catch (IOException e) {
             getLogger().log(Level.INFO, "error while saving config!", e);
         }
+    }
+
+    public static void broadcastMessage(@NotNull String message) {
+        ProxyServer.getInstance().broadcast(
+                TextComponent.fromLegacyText(
+                        RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + message
+                )
+        );
+    }
+
+    public <T extends RUserManager> T getUserManager() {
+        return (T) userManager;
+    }
+
+    public <T extends RMaintenanceManager> T getMaintenanceManager() {
+        return (T) maintenanceManager;
     }
 }
