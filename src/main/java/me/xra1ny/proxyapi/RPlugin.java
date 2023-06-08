@@ -12,6 +12,7 @@ import me.xra1ny.proxyapi.models.party.PartyManager;
 import me.xra1ny.proxyapi.models.user.RUser;
 import me.xra1ny.proxyapi.models.user.RUserManager;
 import me.xra1ny.proxyapi.models.user.UserInputWindowManager;
+import me.xra1ny.proxyapi.utils.ConfigKeys;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -41,30 +42,6 @@ public abstract class RPlugin extends Plugin {
      */
     @Getter
     private boolean mysqlEnabled;
-
-    /**
-     * the config setting of the mysql url to connect to
-     */
-    @Getter(onMethod = @__(@NotNull))
-    private String mysqlUrl;
-
-    /**
-     * the config setting of the mysql url port to connect to
-     */
-    @Getter
-    private int mysqlPort;
-
-    /**
-     * the config setting of the mysql servers username to login as
-     */
-    @Getter(onMethod = @__(@NotNull))
-    private String mysqlUsername;
-
-    /**
-     * the config setting of the mysql servers user password to login as
-     */
-    @Getter(onMethod = @__(@NotNull))
-    private String mysqlPassword;
 
     /**
      * the config setting whether to force non mysql config settings even when a mysql connection has been established
@@ -289,67 +266,46 @@ public abstract class RPlugin extends Plugin {
     private void setupConfig() {
         getLogger().log(Level.INFO, "attempting to setup config...");
 
-        getLogger().setLevel(Level.parse(getConfig().getString("logging-level", "ALL")));
-        getConfig().set("logging-level", getLogger().getLevel().toString());
+        getLogger().setLevel(Level.parse(getConfig().getString(ConfigKeys.LOGGING_LEVEL, "ALL")));
+        getConfig().set(ConfigKeys.LOGGING_LEVEL, getLogger().getLevel().toString());
 
-        Configuration mysql = getConfig().getSection("mysql");
+        this.mysqlEnabled = getConfig().getBoolean(ConfigKeys.MYSQL_ENABLED, false);
+        getConfig().set(ConfigKeys.MYSQL_ENABLED, this.mysqlEnabled);
 
-        if(mysql == null) {
-            getConfig().set("mysql", null);
-            mysql = getConfig().getSection("mysql");
-        }
-
-        this.mysqlEnabled = mysql.getBoolean("enabled", false);
-        mysql.set("enabled", this.mysqlEnabled);
-
-        if(this.mysqlEnabled) {
-            this.mysqlUrl = mysql.getString("url", "127.0.0.1");
-            mysql.set("url", this.mysqlUrl);
-
-            this.mysqlPort = mysql.getInt("port", 3306);
-            mysql.set("port", this.mysqlPort);
-
-            this.mysqlUsername = mysql.getString("username", "root");
-            mysql.set("username", this.mysqlUsername);
-
-            this.mysqlPassword = mysql.getString("password", "");
-            mysql.set("password", this.mysqlPassword);
-        }
-
-        Configuration nonMysql = getConfig().getSection("non-mysql");
+        Configuration nonMysql = getConfig().getSection(ConfigKeys.NON_MYSQL);
 
         if(nonMysql == null) {
-            getConfig().set("non-mysql", null);
-            nonMysql = getConfig().getSection("non-mysql");
+            getConfig().set(ConfigKeys.NON_MYSQL, "");
+            nonMysql = getConfig().getSection(ConfigKeys.NON_MYSQL);
         }
 
-        this.forceNonMysqlSettings = nonMysql.getBoolean("force", true);
-        nonMysql.set("force", this.forceNonMysqlSettings);
+        this.forceNonMysqlSettings = nonMysql.getBoolean(ConfigKeys.NON_MYSQL_FORCE, true);
+        nonMysql.set(ConfigKeys.NON_MYSQL_FORCE, this.forceNonMysqlSettings);
 
         if(!this.mysqlEnabled || this.forceNonMysqlSettings) {
-            this.prefix = nonMysql.getString("prefix", ChatColor.BOLD + "MyAwesomePlugin  ");
-            nonMysql.set("prefix", this.prefix);
+            this.prefix = nonMysql.getString(ConfigKeys.NON_MYSQL_PREFIX, ChatColor.BOLD + "MyPlugin  ");
+            nonMysql.set(ConfigKeys.NON_MYSQL_PREFIX, this.prefix);
 
-            this.chatColor = ChatColor.valueOf(nonMysql.getString("chat-color", String.valueOf(ChatColor.GRAY)));
-            nonMysql.set("chat-color", this.chatColor.name());
+            this.chatColor = ChatColor.valueOf(nonMysql.getString(ConfigKeys.NON_MYSQL_CHAT_COLOR, String.valueOf(ChatColor.GRAY)));
+            nonMysql.set(ConfigKeys.NON_MYSQL_CHAT_COLOR, this.chatColor.name());
 
-            this.playerNoPermissionErrorMessage = nonMysql.getString("player-no-permission-error-message", "§l§cFEHLER! §r§cDafür hast du keine Rechte!");
-            nonMysql.set("player-no-permission-error-message", this.playerNoPermissionErrorMessage);
+            this.playerNoPermissionErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE, "§l§cFEHLER! §r§cDafür hast du keine Rechte!");
+            nonMysql.set(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE, this.playerNoPermissionErrorMessage);
 
-            this.onlyPlayerCommandErrorMessage = nonMysql.getString("only-player-command-error-message", "§l§cFEHLER! §r§cDieser Command kann nur durch einen Spieler ausgeführt werden!");
-            nonMysql.set("only-player-command-error-message", this.onlyPlayerCommandErrorMessage);
+            this.onlyPlayerCommandErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE, "§l§cFEHLER! §r§cDieser Command kann nur durch einen Spieler ausgeführt werden!");
+            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE, this.onlyPlayerCommandErrorMessage);
 
-            this.commandErrorMessage = nonMysql.getString("command-error-message", "§l§cFEHLER! §r§cCommand konnte nicht ausgeführt werden!");
-            nonMysql.set("command-error-message", this.commandErrorMessage);
+            this.commandErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE, "§l§cFEHLER! §r§cCommand konnte nicht ausgeführt werden!");
+            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE, this.commandErrorMessage);
 
-            this.commandInvalidArgsErrorMessage = nonMysql.getString("command-invalid-args-error-message", "§l§cFEHLER! §r§cUngültige Command Argumente!");
-            nonMysql.set("command-invalid-args-error-message", this.commandInvalidArgsErrorMessage);
+            this.commandInvalidArgsErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE, "§l§cFEHLER! §r§cUngültige Command Argumente!");
+            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE, this.commandInvalidArgsErrorMessage);
 
-            this.commandInternalErrorMessage = nonMysql.getString("command-internal-error-message", "§l§cFEHLER! §r§cInterner Fehler beim Ausführen des Commands!");
-            nonMysql.set("command-internal-error-message", this.commandInternalErrorMessage);
+            this.commandInternalErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE, "§l§cFEHLER! §r§cInterner Fehler beim Ausführen des Commands!");
+            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE, this.commandInternalErrorMessage);
 
-            this.userTimeout = nonMysql.getLong("user-timeout", 20);
-            nonMysql.set("user-timeout", this.userTimeout);
+            this.userTimeout = nonMysql.getLong(ConfigKeys.NON_MYSQL_USER_TIMEOUT, 20);
+            nonMysql.set(ConfigKeys.NON_MYSQL_USER_TIMEOUT, this.userTimeout);
         }
 
         getLogger().log(Level.INFO, "config successfully setup!");
