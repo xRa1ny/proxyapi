@@ -5,32 +5,32 @@ import me.xra1ny.proxyapi.exceptions.UserNotRegisteredException;
 import me.xra1ny.proxyapi.models.user.RUser;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class DefaultPluginConnectionListener implements Listener {
     @EventHandler
-    public void onPlayerPreJoinProxy(@NotNull PreLoginEvent e) {
+    public void onPlayerLoginProxy(@NotNull LoginEvent e) {
         try {
-            if(RPlugin.getInstance().getMaintenanceManager().isEnabled()) {
-                if(!RPlugin.getInstance().getMaintenanceManager().getIgnoredUsers().stream()
-                        .map(UUID::toString).toList().contains(e.getConnection().getUniqueId().toString())) {
+            if(RPlugin.getInstance().getProxyMaintenanceManager().isEnabled()) {
+                if(!RPlugin.getInstance().getProxyMaintenanceManager().getIgnoredUsers().stream()
+                        .toList()
+                        .contains(e.getConnection().getUniqueId())) {
                     e.setCancelled(true);
                     e.setCancelReason(
                             TextComponent.fromLegacyText(
-                                    RPlugin.getInstance().getMaintenanceManager().getMessage()
+                                    RPlugin.getInstance().getProxyMaintenanceManager().getMessage()
                             )
                     );
                 }
             }
         }catch(Exception ex) {
-            RPlugin.getInstance().getLogger().log(Level.SEVERE, "error while executing default async player pre login event handler!", e);
+            RPlugin.getInstance().getLogger().log(Level.SEVERE, "error while executing default login event handler!", e);
         }
     }
 

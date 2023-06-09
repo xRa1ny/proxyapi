@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import me.xra1ny.proxyapi.RPlugin;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,11 +55,7 @@ public class RUser {
         this.player = ProxyServer.getInstance().getPlayer(this.player.getUniqueId());
     }
 
-    public void sendMessage(@NotNull String message) {
-        this.player.sendMessage(
-                TextComponent.fromLegacyText(
-                        RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getChatColor() + message
-                )
-        );
+    public void sendMessage(@NotNull String... message) {
+        RPlugin.sendMessage(this.player, message);
     }
 }

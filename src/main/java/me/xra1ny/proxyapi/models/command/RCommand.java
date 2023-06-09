@@ -10,6 +10,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 
 /** Used to create Commands */
 @Slf4j
-public abstract class RCommand extends Command {
+public abstract class RCommand extends Command implements TabExecutor {
     /**
      * the name of this command
      */
@@ -94,7 +95,7 @@ public abstract class RCommand extends Command {
             if(!(sender instanceof ProxiedPlayer)) {
                 sender.sendMessage(
                         TextComponent.fromLegacyText(
-                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getOnlyPlayerCommandErrorMessage()
+                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandOnlyPlayerErrorMessage()
                         )
                 );
 
@@ -172,7 +173,7 @@ public abstract class RCommand extends Command {
     }
 
     @NotNull
-    public final List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public final Iterable<String> onTabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
         final List<String> tabCompleted = new ArrayList<>();
 
         if(args.length == 1) {
@@ -193,14 +194,10 @@ public abstract class RCommand extends Command {
                     for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                         tabCompleted.add(player.getName());
                     }
-                }else if(finalArg.equalsIgnoreCase("%INTEGER%")) {
-                    tabCompleted.add("<-2.147.483.647 bis 2.147.483.647>");
-                }else if(finalArg.equalsIgnoreCase("%LONG%")) {
-                    tabCompleted.add("<-9.223.372.036.854.775.807 bis 9.223.372.036.854.775.807>");
                 }else if(finalArg.equalsIgnoreCase("%BOOLEAN%")) {
                     tabCompleted.add("<true|false>");
                 }else if(finalArg.startsWith("%") && finalArg.endsWith("%")) {
-                    tabCompleted.add("<" + finalArg.replaceAll("%", "") + ">");
+                    tabCompleted.add("<" + finalArg.replaceAll("%", "").toUpperCase() + ">");
                 }else {
                     tabCompleted.add(finalArg);
                 }

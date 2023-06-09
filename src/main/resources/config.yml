@@ -24,12 +24,16 @@
 # ALL     - all messages will be logged
 logging-level: 'ALL'
 
+# the maintenance settings of this server
+maintenance:
+  # when enabled, only permitted users may join the server
+  enabled: false
+
+# when enabled, marks this plugin as mysql supported and will affect non-mysql configuration
+mysql-enabled: false
+
 # the settings to use when no mysql connection is established
 non-mysql:
-
-  # when enabled, marks this plugin as mysql supported and will affect non-mysql configuration
-  mysql-enabled: false
-
   # when enabled the api will force to use these settings disregarding any mysql connection
   force: true
   # the prefix
@@ -38,6 +42,8 @@ non-mysql:
   chat-color: GRAY
   # the message to display when performing an action without the required permissions
   player-no-permission-error-message: §l§cERROR! §r§cYou don't have permission to perform this action!
+  # the message to display when a specified player was not found though is required to perform an action
+  player-not-found-error-message: §l§cERROR! §r§cThe specified player could not be found!
   # the message to display when executing a command that can only be executed by a player
   command-only-player-error-message: §l§cERROR! §r§cThis command can only be executed by a player!
   # the message to display when an error occurs while executing a command

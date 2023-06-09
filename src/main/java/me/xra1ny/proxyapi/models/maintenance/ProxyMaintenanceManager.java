@@ -4,8 +4,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.models.user.RUser;
-import net.md_5.bungee.api.ChatColor;
+import me.xra1ny.proxyapi.utils.ConfigKeys;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.config.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -14,27 +15,34 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-public class RMaintenanceManager {
+public class ProxyMaintenanceManager {
+    @Getter
+    private boolean enabled;
+
     /**
      * the message to display when a user gets kicked in result of ongoing maintenance
      */
     @Getter(onMethod = @__(@NotNull))
     private String message;
 
-    @Getter
-    private boolean enabled;
-
     /**
      * all uuids ignored by the maintenance system
      */
-    @Getter(onMethod = @__({ @NotNull, @Unmodifiable}))
+    @Getter(onMethod = @__({ @NotNull, @Unmodifiable }))
     private final List<UUID> ignoredUsers = new ArrayList<>();
 
-    public RMaintenanceManager() {
-        this.message = RPlugin.getInstance().getConfig().getString("maintenance.message");
-        this.enabled = RPlugin.getInstance().getConfig().getBoolean("maintenance.enabled");
+    public ProxyMaintenanceManager() {
+        Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
 
-        final List<UUID> ignoredUsers = RPlugin.getInstance().getConfig().getStringList("maintenance.ignored").stream().map(UUID::fromString).toList();
+        if(maintenance == null) {
+            RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE, "");
+            maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+        }
+
+        this.enabled = maintenance.getBoolean(ConfigKeys.MAINTENANCE_ENABLED);
+        this.message = maintenance.getString(ConfigKeys.MAINTENANCE_MESSAGE);
+
+        final List<UUID> ignoredUsers = maintenance.getStringList(ConfigKeys.MAINTENANCE_IGNORED).stream().map(UUID::fromString).toList();
 
         if(ignoredUsers != null) {
             this.ignoredUsers.addAll(ignoredUsers);
@@ -46,14 +54,15 @@ public class RMaintenanceManager {
      * @param message the message
      */
     public void setMessage(@NotNull String message) {
-        if(this.message != null && this.message.equals(message)) {
+        if(this.message.equals(message)) {
             return;
         }
 
-        RPlugin.getInstance().getConfig().set("maintenance.message", message);
-        RPlugin.getInstance().saveConfig();
+        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
 
-        RPlugin.broadcastMessage("Die Wartungsarbeiten Nachricht wurde angepasst!");
+        maintenance.set(ConfigKeys.MAINTENANCE_MESSAGE, message);
+
+        RPlugin.getInstance().saveConfig();
 
         this.message = message;
     }
@@ -67,7 +76,10 @@ public class RMaintenanceManager {
             return;
         }
 
-        RPlugin.getInstance().getConfig().set("maintenance.enabled", enabled);
+        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+
+        maintenance.set(ConfigKeys.MAINTENANCE_ENABLED, enabled);
+
         RPlugin.getInstance().saveConfig();
 
         // Kick all Users not permitted...
@@ -81,13 +93,14 @@ public class RMaintenanceManager {
             }
         }
 
-        RPlugin.broadcastMessage("Die Wartungen wurden " + (enabled ? ChatColor.GREEN + "aktiviert!" : ChatColor.RED + "deaktiviert!"));
-
         this.enabled = enabled;
     }
 
     private void updateConfig() {
-        RPlugin.getInstance().getConfig().set("maintenance.ignored", this.ignoredUsers.stream().map(UUID::toString).toList());
+        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+
+        maintenance.set(ConfigKeys.MAINTENANCE_IGNORED, this.ignoredUsers.stream().map(UUID::toString).toList());
+
         RPlugin.getInstance().saveConfig();
     }
 
@@ -102,9 +115,6 @@ public class RMaintenanceManager {
 
         this.ignoredUsers.add(uuid);
 
-        // TODO: Add filter (Send Message only to permitted Players)
-        RPlugin.broadcastMessage(ChatColor.YELLOW + uuid.toString() + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme hinzugefügt!");
-
         updateConfig();
     }
 
@@ -118,9 +128,6 @@ public class RMaintenanceManager {
         }
 
         this.ignoredUsers.remove(uuid);
-
-        // TODO: Add filter (Send Message only to permitted Players)
-        RPlugin.broadcastMessage(ChatColor.YELLOW + uuid.toString() + RPlugin.getInstance().getChatColor() + " wurde als Wartungsarbeiten Ausnahme entfernt!");
 
         updateConfig();
     }
