@@ -28,6 +28,8 @@ logging-level: 'ALL'
 maintenance:
   # when enabled, only permitted users may join the server
   enabled: false
+  # the message to display to non permitted players when maintenance is enabled
+  message: '§lMaintenance'
 
 # when enabled, marks this plugin as mysql supported and will affect non-mysql configuration
 mysql-enabled: false

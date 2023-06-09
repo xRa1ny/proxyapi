@@ -36,6 +36,10 @@ public abstract class RPlugin extends Plugin {
     @Getter(onMethod = @__(@NotNull))
     private static RPlugin instance;
 
+    private boolean maintenanceEnabled;
+
+    private String maintenanceMessage;
+
     /**
      * the config setting whether to use mysql or not
      */
@@ -180,7 +184,7 @@ public abstract class RPlugin extends Plugin {
             this.listenerManager = new ListenerManager();
             this.commandManager = new CommandManager();
             this.userManager = userManagerClass.getDeclaredConstructor(Class.class, long.class).newInstance(userClass, this.userTimeout);
-            this.proxyMaintenanceManager = new ProxyMaintenanceManager();
+            this.proxyMaintenanceManager = new ProxyMaintenanceManager(this.maintenanceEnabled, this.maintenanceMessage);
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
@@ -262,6 +266,19 @@ public abstract class RPlugin extends Plugin {
 
         getLogger().setLevel(Level.parse(getConfig().getString(ConfigKeys.LOGGING_LEVEL, "ALL")));
         getConfig().set(ConfigKeys.LOGGING_LEVEL, getLogger().getLevel().toString());
+
+        Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+
+        if(maintenance == null) {
+            RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE, "");
+            maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+        }
+
+        this.maintenanceEnabled = maintenance.getBoolean(ConfigKeys.MAINTENANCE_ENABLED, false);
+        maintenance.set(ConfigKeys.MAINTENANCE_ENABLED, this.maintenanceEnabled);
+
+        this.maintenanceMessage = maintenance.getString(ConfigKeys.MAINTENANCE_MESSAGE, "§lMaintenance!");
+        maintenance.set(ConfigKeys.MAINTENANCE_MESSAGE, this.maintenanceMessage);
 
         this.mysqlEnabled = getConfig().getBoolean(ConfigKeys.MYSQL_ENABLED, false);
         getConfig().set(ConfigKeys.MYSQL_ENABLED, this.mysqlEnabled);

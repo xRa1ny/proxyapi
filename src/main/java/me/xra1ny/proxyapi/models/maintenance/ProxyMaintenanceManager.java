@@ -31,22 +31,11 @@ public class ProxyMaintenanceManager {
     @Getter(onMethod = @__({ @NotNull, @Unmodifiable }))
     private final List<UUID> ignoredUsers = new ArrayList<>();
 
-    public ProxyMaintenanceManager() {
-        Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+    public ProxyMaintenanceManager(boolean enabled, @NotNull String message) {
+        this.enabled = enabled;
+        this.message = message;
 
-        if(maintenance == null) {
-            RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE, "");
-            maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
-        }
-
-        this.enabled = maintenance.getBoolean(ConfigKeys.MAINTENANCE_ENABLED);
-        this.message = maintenance.getString(ConfigKeys.MAINTENANCE_MESSAGE);
-
-        final List<UUID> ignoredUsers = maintenance.getStringList(ConfigKeys.MAINTENANCE_IGNORED).stream().map(UUID::fromString).toList();
-
-        if(ignoredUsers != null) {
-            this.ignoredUsers.addAll(ignoredUsers);
-        }
+        updateConfig();
     }
 
     /**
