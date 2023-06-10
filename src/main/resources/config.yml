@@ -24,12 +24,13 @@
 # ALL     - all messages will be logged
 logging-level: 'ALL'
 
-# the maintenance settings of this server
+# the maintenance settings of this proxy
 maintenance:
-  # when enabled, only permitted users may join the server
+  # when enabled, only permitted users may join the proxy
   enabled: false
   # the message to display to non permitted players when maintenance is enabled
   message: '§lMaintenance'
+  ignored: {}
 
 # when enabled, marks this plugin as mysql supported and will affect non-mysql configuration
 mysql-enabled: false
