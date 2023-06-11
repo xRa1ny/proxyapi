@@ -37,23 +37,39 @@ mysql-enabled: false
 
 # the settings to use when no mysql connection is established
 non-mysql:
-  # when enabled the api will force to use these settings disregarding any mysql connection
-  force: true
   # the prefix
-  prefix: '§lMyPlugin  '
+  prefix:
+    force: false
+    value: '§lMyPlugin  '
   # the chat color
-  chat-color: GRAY
+  chat-color:
+    force: false
+    value: GRAY
   # the message to display when performing an action without the required permissions
-  player-no-permission-error-message: §l§cERROR! §r§cYou don't have permission to perform this action!
+  player-no-permission-error-message:
+    force: false
+    value : §l§cERROR! §r§cYou don't have permission to perform this action!
   # the message to display when a specified player was not found though is required to perform an action
-  player-not-found-error-message: §l§cERROR! §r§cThe specified player could not be found!
+  player-not-found-error-message:
+    force: false
+    value : §l§cERROR! §r§cThe specified player could not be found!
   # the message to display when executing a command that can only be executed by a player
-  command-only-player-error-message: §l§cERROR! §r§cThis command can only be executed by a player!
+  command-only-player-error-message:
+    force: false
+    value: §l§cERROR! §r§cThis command can only be executed by a player!
   # the message to display when an error occurs while executing a command
-  command-error-message: §l§cERROR! §r§cError while executing command!
+  command-error-message:
+    force: false
+    value: §l§cERROR! §r§cError while executing command!
   # the message to display when while executing a command has been given invalid args
-  command-invalid-args-error-message: §l§cERROR! §r§cInvalid arguments!
+  command-invalid-args-error-message:
+    force: false
+    value: §l§cERROR! §r§cInvalid arguments!
   # the message to display when an internal error occurs while executing a command
-  command-internal-error-message: §l§cERROR! §r§cInternal error while executing command!
+  command-internal-error-message:
+    force: false
+    value: §l§cERROR! §r§cInternal error while executing command!
   # the time when a user unregisters after a certain time of disconnection
-  user-timeout: 20
+  user-timeout:
+    force: false
+    value: 0

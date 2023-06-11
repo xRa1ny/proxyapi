@@ -1,14 +1,16 @@
 package me.xra1ny.proxyapi.models.user;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.models.task.RRepeatableTask;
 import me.xra1ny.proxyapi.models.task.RepeatableTaskInfo;
-import lombok.Getter;
 
 @RepeatableTaskInfo(interval = 1000)
 public class UserTimeoutHandler extends RRepeatableTask {
     @Getter
-    private final long userTimeout;
+    @Setter
+    private long userTimeout;
 
     public UserTimeoutHandler(long userTimeout) {
         this.userTimeout = userTimeout;

@@ -6,7 +6,6 @@ import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.models.user.RUser;
 import me.xra1ny.proxyapi.utils.ConfigKeys;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.config.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -47,9 +46,7 @@ public class ProxyMaintenanceManager {
             return;
         }
 
-        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
-
-        maintenance.set(ConfigKeys.MAINTENANCE_MESSAGE, message);
+        RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_MESSAGE, message);
 
         RPlugin.getInstance().saveConfig();
 
@@ -65,9 +62,7 @@ public class ProxyMaintenanceManager {
             return;
         }
 
-        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
-
-        maintenance.set(ConfigKeys.MAINTENANCE_ENABLED, enabled);
+        RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_ENABLED, enabled);
 
         RPlugin.getInstance().saveConfig();
 
@@ -86,9 +81,7 @@ public class ProxyMaintenanceManager {
     }
 
     private void updateConfig() {
-        final Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
-
-        maintenance.set(ConfigKeys.MAINTENANCE_IGNORED, this.ignoredUsers.stream().map(UUID::toString).toList());
+        RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_IGNORED, this.ignoredUsers.stream().map(UUID::toString).toList());
 
         RPlugin.getInstance().saveConfig();
     }

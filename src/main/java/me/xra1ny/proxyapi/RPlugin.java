@@ -1,6 +1,8 @@
 package me.xra1ny.proxyapi;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.xra1ny.proxyapi.models.color.HexCodeManager;
 import me.xra1ny.proxyapi.models.command.CommandManager;
@@ -46,56 +48,85 @@ public abstract class RPlugin extends Plugin {
     @Getter
     private boolean mysqlEnabled;
 
-    /**
-     * the config setting whether to force non mysql config settings even when a mysql connection has been established
-     */
     @Getter
-    private boolean forceNonMysqlSettings;
+    private boolean forcePrefix;
 
     /**
      * the global prefix of this plugin
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String prefix;
+
+    @Getter
+    private boolean forceChatColor;
 
     /**
      * the global chat color of this plugin
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private ChatColor chatColor;
+
+    @Getter
+    private boolean forceCommandErrorMessage;
 
     /**
      * the global message to display when an error occurs while executing a command
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String commandErrorMessage;
+
+    @Getter
+    private boolean forceCommandInternalErrorMessage;
 
     /**
      * the global message to display when an internal error occurs while executing a command
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String commandInternalErrorMessage;
+
+    @Getter
+    private boolean forceCommandInvalidArgsErrorMessage;
 
     /**
      * the global message to display when a command has been passed invalid arguments
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String commandInvalidArgsErrorMessage;
+
+    @Getter
+    private boolean forcePlayerNoPermissionErrorMessage;
 
     /**
      * the global error message displayed when a player does not have the permissions to perform an action
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String playerNoPermissionErrorMessage;
 
+    @Getter
+    private boolean forcePlayerNotFoundErrorMessage;
+
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String playerNotFoundErrorMessage;
+
+    @Getter
+    private boolean forceCommandOnlyPlayerErrorMessage;
 
     /**
      * the global error message displayed when the console performs a command that can only be executed by a player
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(value = AccessLevel.PROTECTED, onParam = @__(@NotNull))
     private String commandOnlyPlayerErrorMessage;
+
+    @Getter
+    private boolean forceUserTimeout;
 
     private long userTimeout;
 
@@ -267,59 +298,94 @@ public abstract class RPlugin extends Plugin {
         getLogger().setLevel(Level.parse(getConfig().getString(ConfigKeys.LOGGING_LEVEL, "ALL")));
         getConfig().set(ConfigKeys.LOGGING_LEVEL, getLogger().getLevel().toString());
 
-        Configuration maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
+        this.maintenanceEnabled = getConfig().getBoolean(ConfigKeys.MAINTENANCE_ENABLED, false);
+        getConfig().set(ConfigKeys.MAINTENANCE_ENABLED, this.maintenanceEnabled);
 
-        if(maintenance == null) {
-            RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE, "");
-            maintenance = RPlugin.getInstance().getConfig().getSection(ConfigKeys.MAINTENANCE);
-        }
-
-        this.maintenanceEnabled = maintenance.getBoolean(ConfigKeys.MAINTENANCE_ENABLED, false);
-        maintenance.set(ConfigKeys.MAINTENANCE_ENABLED, this.maintenanceEnabled);
-
-        this.maintenanceMessage = maintenance.getString(ConfigKeys.MAINTENANCE_MESSAGE, "§lMaintenance!");
-        maintenance.set(ConfigKeys.MAINTENANCE_MESSAGE, this.maintenanceMessage);
+        this.maintenanceMessage = getConfig().getString(ConfigKeys.MAINTENANCE_MESSAGE, "§lMaintenance!");
+        getConfig().set(ConfigKeys.MAINTENANCE_MESSAGE, this.maintenanceMessage);
 
         this.mysqlEnabled = getConfig().getBoolean(ConfigKeys.MYSQL_ENABLED, false);
         getConfig().set(ConfigKeys.MYSQL_ENABLED, this.mysqlEnabled);
 
-        Configuration nonMysql = getConfig().getSection(ConfigKeys.NON_MYSQL);
+        this.forcePrefix = getConfig().getBoolean(ConfigKeys.NON_MYSQL_PREFIX_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_PREFIX_FORCE, this.forcePrefix);
 
-        if(nonMysql == null) {
-            getConfig().set(ConfigKeys.NON_MYSQL, "");
-            nonMysql = getConfig().getSection(ConfigKeys.NON_MYSQL);
+        if(!this.mysqlEnabled || this.forcePrefix) {
+            this.prefix = getConfig().getString(ConfigKeys.NON_MYSQL_PREFIX_VALUE, "§lMyPlugin  ");
+            getConfig().set(ConfigKeys.NON_MYSQL_PREFIX_VALUE, this.prefix);
         }
 
-        this.forceNonMysqlSettings = nonMysql.getBoolean(ConfigKeys.NON_MYSQL_FORCE, true);
-        nonMysql.set(ConfigKeys.NON_MYSQL_FORCE, this.forceNonMysqlSettings);
 
-        if(!this.mysqlEnabled || this.forceNonMysqlSettings) {
-            this.prefix = nonMysql.getString(ConfigKeys.NON_MYSQL_PREFIX, "§lMyPlugin  ");
-            nonMysql.set(ConfigKeys.NON_MYSQL_PREFIX, this.prefix);
+        this.forceChatColor = getConfig().getBoolean(ConfigKeys.NON_MYSQL_CHAT_COLOR_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_CHAT_COLOR_FORCE, this.forceChatColor);
 
-            this.chatColor = ChatColor.valueOf(nonMysql.getString(ConfigKeys.NON_MYSQL_CHAT_COLOR, String.valueOf(ChatColor.GRAY)));
-            nonMysql.set(ConfigKeys.NON_MYSQL_CHAT_COLOR, this.chatColor.name());
+        if(!this.mysqlEnabled || this.forceChatColor) {
+            this.chatColor = ChatColor.valueOf(getConfig().getString(ConfigKeys.NON_MYSQL_CHAT_COLOR_VALUE, String.valueOf(ChatColor.GRAY)));
+            getConfig().set(ConfigKeys.NON_MYSQL_CHAT_COLOR_VALUE, this.chatColor.name());
+        }
 
-            this.playerNoPermissionErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE, "§l§cERROR! §r§cYou don't have permission to perform this action!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE, this.playerNoPermissionErrorMessage);
 
-            this.playerNotFoundErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE, "§l§cERROR! The specified player could not be found!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE, this.playerNotFoundErrorMessage);
 
-            this.commandOnlyPlayerErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE, "§l§cERROR! §r§cThis command can only be executed by a player!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE, this.commandOnlyPlayerErrorMessage);
+        this.forcePlayerNoPermissionErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE_FORCE, this.forcePlayerNoPermissionErrorMessage);
 
-            this.commandErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE, "§l§cERROR! §r§cError while executing command!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE, this.commandErrorMessage);
+        if(!this.mysqlEnabled || this.forcePlayerNoPermissionErrorMessage) {
+            this.playerNoPermissionErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE_VALUE, "§l§cERROR! §r§cYou don't have permission to perform this action!");
+            getConfig().set(ConfigKeys.NON_MYSQL_PLAYER_NO_PERMISSION_ERROR_MESSAGE_VALUE, this.playerNoPermissionErrorMessage);
+        }
 
-            this.commandInvalidArgsErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE, "§l§cERROR! §r§cInvalid arguments!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE, this.commandInvalidArgsErrorMessage);
 
-            this.commandInternalErrorMessage = nonMysql.getString(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE, "§l§cERROR! §r§cInternal error while executing command!");
-            nonMysql.set(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE, this.commandInternalErrorMessage);
+        this.forcePlayerNotFoundErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE_FORCE, this.forcePlayerNotFoundErrorMessage);
 
-            this.userTimeout = nonMysql.getLong(ConfigKeys.NON_MYSQL_USER_TIMEOUT, 20);
-            nonMysql.set(ConfigKeys.NON_MYSQL_USER_TIMEOUT, this.userTimeout);
+        if(!this.mysqlEnabled || this.forcePlayerNotFoundErrorMessage) {
+            this.playerNotFoundErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE_VALUE, "§l§cERROR! The specified player could not be found!");
+            getConfig().set(ConfigKeys.NON_MYSQL_PLAYER_NOT_FOUND_ERROR_MESSAGE_VALUE, this.playerNotFoundErrorMessage);
+        }
+
+
+        this.forceCommandOnlyPlayerErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE_FORCE, this.forceCommandOnlyPlayerErrorMessage);
+
+        if(!this.mysqlEnabled || this.forceCommandOnlyPlayerErrorMessage) {
+            this.commandOnlyPlayerErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE_VALUE, "§l§cERROR! §r§cThis command can only be executed by a player!");
+            getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_ONLY_PLAYER_ERROR_MESSAGE_VALUE, this.commandOnlyPlayerErrorMessage);
+        }
+
+
+        this.forceCommandErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE_FORCE, this.forceCommandErrorMessage);
+
+        if(!this.mysqlEnabled || this.forceCommandErrorMessage) {
+            this.commandErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE_VALUE, "§l§cERROR! §r§cError while executing command!");
+            getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_ERROR_MESSAGE_VALUE, this.commandErrorMessage);
+        }
+
+
+        this.forceCommandInvalidArgsErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE_FORCE, this.forceCommandInvalidArgsErrorMessage);
+
+        if(!this.mysqlEnabled || this.forceCommandInvalidArgsErrorMessage) {
+            this.commandInvalidArgsErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE_VALUE, "§l§cERROR! §r§cInvalid arguments!");
+            getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_INVALID_ARGS_ERROR_MESSAGE_VALUE, this.commandInvalidArgsErrorMessage);
+        }
+
+
+        this.forceCommandInternalErrorMessage = getConfig().getBoolean(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE_FORCE, this.forceCommandInternalErrorMessage);
+
+        if(!this.mysqlEnabled || this.forceCommandInternalErrorMessage) {
+            this.commandInternalErrorMessage = getConfig().getString(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE_VALUE, "§l§cERROR! §r§cInternal error while executing command!");
+            getConfig().set(ConfigKeys.NON_MYSQL_COMMAND_INTERNAL_ERROR_MESSAGE_VALUE, this.commandInternalErrorMessage);
+        }
+
+
+        this.forceUserTimeout = getConfig().getBoolean(ConfigKeys.NON_MYSQL_USER_TIMEOUT_FORCE, false);
+        getConfig().set(ConfigKeys.NON_MYSQL_USER_TIMEOUT_FORCE, this.forceUserTimeout);
+
+        if(!this.mysqlEnabled || this.forceUserTimeout) {
+            this.userTimeout = getConfig().getLong(ConfigKeys.NON_MYSQL_USER_TIMEOUT_VALUE, 5);
+            getConfig().set(ConfigKeys.NON_MYSQL_USER_TIMEOUT_VALUE, this.userTimeout);
         }
 
         getLogger().log(Level.INFO, "config successfully setup!");
