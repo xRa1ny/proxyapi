@@ -1,9 +1,9 @@
 package me.xra1ny.proxyapi.models.task;
 
-import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.ClassNotAnnotatedException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.xra1ny.proxyapi.RPlugin;
+import me.xra1ny.proxyapi.exceptions.ClassNotAnnotatedException;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +46,7 @@ public abstract class RRepeatableTask {
 
     public RRepeatableTask(int interval) {
         this.interval = interval;
+
         run();
     }
 
@@ -54,10 +55,9 @@ public abstract class RRepeatableTask {
             @Override
             public void run() {
                 try {
-                    tick();
+                    onTick();
                 } catch (Exception ex) {
-                    RPlugin.getInstance().getLogger().log(Level.INFO, "exception in repeatable task " + this);
-                    ex.printStackTrace();
+                    RPlugin.getInstance().getLogger().log(Level.INFO, "exception in repeatable task " + this, ex);
                 }
             }
         };
@@ -91,5 +91,5 @@ public abstract class RRepeatableTask {
     /**
      * called whenever the interval of this repeatable task expires
      */
-    public abstract void tick() throws Exception;
+    public abstract void onTick() throws Exception;
 }
