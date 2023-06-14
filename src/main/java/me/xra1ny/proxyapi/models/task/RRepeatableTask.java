@@ -69,7 +69,7 @@ public abstract class RRepeatableTask {
     public final void start() {
         stop();
 
-        this.task = ProxyServer.getInstance().getScheduler().schedule(RPlugin.getInstance(), this.runnable, 0L, this.interval / 1000, TimeUnit.MILLISECONDS);
+        this.task = ProxyServer.getInstance().getScheduler().schedule(RPlugin.getInstance(), this.runnable, 1L, this.interval, TimeUnit.MILLISECONDS);
     }
 
     /**
