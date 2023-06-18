@@ -40,7 +40,6 @@ public abstract class RRepeatableTask {
         }
 
         this.interval = info.interval();
-
         run();
     }
 
@@ -68,7 +67,6 @@ public abstract class RRepeatableTask {
      */
     public final void start() {
         stop();
-
         this.task = ProxyServer.getInstance().getScheduler().schedule(RPlugin.getInstance(), this.runnable, 1L, this.interval, TimeUnit.MILLISECONDS);
     }
 

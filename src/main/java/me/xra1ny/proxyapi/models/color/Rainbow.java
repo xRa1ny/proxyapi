@@ -7,7 +7,6 @@ import me.xra1ny.proxyapi.exceptions.NumberRangeException;
 import java.util.ArrayList;
 
 public class Rainbow {
-
     private double minNum;
     private double maxNum;
     private String[] colours;
@@ -31,6 +30,7 @@ public class Rainbow {
         } else {
             double segment = (maxNum - minNum) / (colorGradients.size());
             int index = (int) Math.min(Math.floor((Math.max(number, minNum) - minNum) / segment), colorGradients.size() - 1);
+
             return colorGradients.get(index).colourAt(number);
         }
     }
@@ -40,16 +40,17 @@ public class Rainbow {
         if (spectrum.length < 2) {
             throw new HomogeneousRainbowException();
         } else {
-            double increment = (maxNum - minNum) / (spectrum.length - 1);
-            ColorGradient firstGradient = new ColorGradient();
+            final double increment = (maxNum - minNum) / (spectrum.length - 1);
+            final ColorGradient firstGradient = new ColorGradient();
+
             firstGradient.setGradient(spectrum[0], spectrum[1]);
             firstGradient.setNumberRange(minNum, minNum + increment);
-
             colorGradients = new ArrayList<ColorGradient>();
             colorGradients.add(firstGradient);
 
             for (int i = 1; i < spectrum.length - 1; i++) {
-                ColorGradient colorGradient = new ColorGradient();
+                final ColorGradient colorGradient = new ColorGradient();
+
                 colorGradient.setGradient(spectrum[i], spectrum[i + 1]);
                 colorGradient.setNumberRange(minNum + increment * i, minNum + increment * (i + 1));
                 colorGradients.add(colorGradient);

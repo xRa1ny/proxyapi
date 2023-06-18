@@ -19,7 +19,6 @@ public class UserInputWindowHandler extends RRepeatableTask {
 
     UserInputWindowHandler(@NotNull UserInputWindow inputWindow) throws ClassNotAnnotatedException {
         this.inputWindow = inputWindow;
-
         start();
     }
 

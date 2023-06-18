@@ -43,9 +43,7 @@ public class ListenerManager {
         }
 
         ProxyServer.getInstance().getPluginManager().registerListener(RPlugin.getInstance(), listener);
-
         this.listeners.add(listener);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "listener " + listener + " successfully registered!");
     }
 
@@ -79,9 +77,7 @@ public class ListenerManager {
         }
 
         ProxyServer.getInstance().getPluginManager().unregisterListener(listener);
-
         this.listeners.remove(listener);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "listener " + listener + " successfully unregistered!");
     }
 

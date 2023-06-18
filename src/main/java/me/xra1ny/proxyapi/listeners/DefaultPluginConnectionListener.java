@@ -38,6 +38,7 @@ public class DefaultPluginConnectionListener implements Listener {
     public void onPlayerJoinProxy(@NotNull PostLoginEvent e) {
         try {
             RUser user;
+
             try {
                 user = RPlugin.getInstance().getUserManager().get(e.getPlayer());
                 user.setTimeout(RPlugin.getInstance().getUserManager().getUserTimeoutHandler().getUserTimeout());

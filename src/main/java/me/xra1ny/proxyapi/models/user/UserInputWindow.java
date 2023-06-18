@@ -64,7 +64,6 @@ public abstract class UserInputWindow {
         }
 
         this.users.remove(user);
-
         onClose(user, input);
     }
 

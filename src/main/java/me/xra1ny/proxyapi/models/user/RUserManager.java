@@ -55,7 +55,6 @@ public class RUserManager {
         }
 
         this.users.add(user);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "user " + user + " successfully registered!");
     }
 
@@ -72,7 +71,6 @@ public class RUserManager {
         }
 
         this.users.remove(user);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "user " + user + " successfully unregistered!");
     }
 

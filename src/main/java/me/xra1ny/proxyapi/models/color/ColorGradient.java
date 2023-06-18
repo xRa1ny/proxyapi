@@ -11,8 +11,7 @@ class ColorGradient {
     private int[] endColour = {0x00, 0x00, 0xff};
     private double minNum = 0;
     private double maxNum = 100;
-
-    private static Hashtable<String, int[]> htmlColors;
+    private static final Hashtable<String, int[]> htmlColors;
 
     static {
         htmlColors = new Hashtable<String, int[]>();
@@ -44,19 +43,24 @@ class ColorGradient {
 
     private int calcHex(double number, int channelStart, int channelEnd) {
         double num = number;
+
         if (num < minNum) {
             num = minNum;
         }
+
         if (num > maxNum) {
             num = maxNum;
         }
-        double numRange = maxNum - minNum;
-        double cPerUnit = (channelEnd - channelStart) / numRange;
+
+        final double numRange = maxNum - minNum;
+        final double cPerUnit = (channelEnd - channelStart) / numRange;
+
         return (int) Math.round(cPerUnit * (num - minNum) + channelStart);
     }
 
     private String formatHex(int val) {
-        String hex = Integer.toHexString(val);
+        final String hex = Integer.toHexString(val);
+
         if (hex.length() == 1) {
             return '0' + hex;
         } else {
@@ -82,7 +86,8 @@ class ColorGradient {
         if (s.matches("^#?[0-9a-fA-F]{6}$")) {
             return rgbStringToArray(s.replace("#", ""));
         } else {
-            int[] rgbArray = htmlColors.get(s.toLowerCase());
+            final int[] rgbArray = htmlColors.get(s.toLowerCase());
+
             if (rgbArray == null) {
                 throw new InvalidColorException(s);
             } else {
@@ -92,9 +97,10 @@ class ColorGradient {
     }
 
     private int[] rgbStringToArray(String s) {
-        int red = Integer.parseInt(s.substring(0, 2), 16);
-        int green = Integer.parseInt(s.substring(2, 4), 16);
-        int blue = Integer.parseInt(s.substring(4, 6), 16);
+        final int red = Integer.parseInt(s.substring(0, 2), 16);
+        final int green = Integer.parseInt(s.substring(2, 4), 16);
+        final int blue = Integer.parseInt(s.substring(4, 6), 16);
+
         return new int[]{red, green, blue};
     }
 

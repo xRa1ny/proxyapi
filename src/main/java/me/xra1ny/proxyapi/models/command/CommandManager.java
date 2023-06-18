@@ -43,7 +43,6 @@ public class CommandManager {
 
         ProxyServer.getInstance().getPluginManager().registerCommand(RPlugin.getInstance(), command);
         this.commands.add(command);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "command " + command + " successfully registered!");
     }
 
@@ -77,7 +76,6 @@ public class CommandManager {
         }
 
         this.commands.remove(command);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "command " + command + " successfully unregistered!");
     }
 

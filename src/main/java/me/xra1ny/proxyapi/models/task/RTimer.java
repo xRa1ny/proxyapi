@@ -32,14 +32,12 @@ public abstract class RTimer extends RRepeatableTask {
     public final void onTick() throws Exception {
         if(this.countdown <= 0) {
             stop();
-
             onExpire();
 
             return;
         }
 
         onTimerTick();
-
         this.countdown--;
     }
 

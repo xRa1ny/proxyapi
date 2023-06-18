@@ -40,7 +40,6 @@ public final class UserInputWindowManager {
         }
 
         this.userInputWindows.add(userInputWindow);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "user input window " + userInputWindow + " successfully registered!");
     }
 
@@ -57,7 +56,6 @@ public final class UserInputWindowManager {
         }
 
         this.userInputWindows.remove(userInputWindow);
-
         RPlugin.getInstance().getLogger().log(Level.INFO, "user input window " + userInputWindow + " successfully unregistered!");
     }
 

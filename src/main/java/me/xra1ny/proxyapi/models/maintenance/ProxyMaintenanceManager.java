@@ -33,7 +33,6 @@ public class ProxyMaintenanceManager {
     public ProxyMaintenanceManager(boolean enabled, @NotNull String message) {
         this.enabled = enabled;
         this.message = message;
-
         updateConfig();
     }
 
@@ -47,9 +46,7 @@ public class ProxyMaintenanceManager {
         }
 
         RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_MESSAGE, message);
-
         RPlugin.getInstance().saveConfig();
-
         this.message = message;
     }
 
@@ -63,7 +60,6 @@ public class ProxyMaintenanceManager {
         }
 
         RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_ENABLED, enabled);
-
         RPlugin.getInstance().saveConfig();
 
         // Kick all Users not permitted...
@@ -82,7 +78,6 @@ public class ProxyMaintenanceManager {
 
     private void updateConfig() {
         RPlugin.getInstance().getConfig().set(ConfigKeys.MAINTENANCE_IGNORED, this.ignoredUsers.stream().map(UUID::toString).toList());
-
         RPlugin.getInstance().saveConfig();
     }
 
@@ -96,7 +91,6 @@ public class ProxyMaintenanceManager {
         }
 
         this.ignoredUsers.add(uuid);
-
         updateConfig();
     }
 
@@ -110,7 +104,6 @@ public class ProxyMaintenanceManager {
         }
 
         this.ignoredUsers.remove(uuid);
-
         updateConfig();
     }
 }
