@@ -40,16 +40,20 @@ public abstract class RRepeatableTask {
         }
 
         this.interval = info.interval();
-        run();
     }
 
     public RRepeatableTask(int interval) {
         this.interval = interval;
-
-        run();
     }
 
-    private void run() {
+    /**
+     * starts this repeatable task
+     */
+    public final void start() {
+        if(isRunning()) {
+            return;
+        }
+
         this.runnable = new Runnable() {
             @Override
             public void run() {
@@ -60,13 +64,6 @@ public abstract class RRepeatableTask {
                 }
             }
         };
-    }
-
-    /**
-     * starts this repeatable task
-     */
-    public final void start() {
-        stop();
         this.task = ProxyServer.getInstance().getScheduler().schedule(RPlugin.getInstance(), this.runnable, 1L, this.interval, TimeUnit.MILLISECONDS);
     }
 
@@ -74,16 +71,17 @@ public abstract class RRepeatableTask {
      * stops this repeatable task
      */
     public final void stop() {
-        if(this.task == null) {
+        if(!isRunning()) {
             return;
         }
 
-        task.cancel();
+        this.task.cancel();
         this.task = null;
+        this.runnable = null;
     }
 
     public final boolean isRunning() {
-        return this.task != null;
+        return this.task != null && this.runnable != null;
     }
 
     /**
