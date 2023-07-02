@@ -82,31 +82,12 @@ public class ListenerManager {
     }
 
     /**
-     * unregisters all listeners registered within the package name specified
-     * @param packageName the package name
-     * @throws ListenerNotRegisteredException if any listener found within the package specified is not yet registered
-     */
-    public void unregisterAll(@NotNull String packageName) throws ListenerNotRegisteredException {
-        RPlugin.getInstance().getLogger().log(Level.INFO, "attempting to unregister all listeners in package " + packageName + "...");
-
-        for(Listener listener : this.listeners) {
-            if(!listener.getClass().getPackage().getName().equals(packageName)) {
-                continue;
-            }
-
-            unregister(listener);
-        }
-    }
-
-    /**
      * unregisters all registered listeners
      * @throws ListenerNotRegisteredException if any listener is not yet registered
      */
     public void unregisterAll() throws ListenerNotRegisteredException {
         RPlugin.getInstance().getLogger().log(Level.INFO, "attempting to unregister all listeners...");
-
-        for(Listener listener : this.listeners) {
-            unregister(listener);
-        }
+        this.listeners.clear();
+        RPlugin.getInstance().getLogger().log(Level.INFO, "successfully unregistered all listeners!");
     }
 }

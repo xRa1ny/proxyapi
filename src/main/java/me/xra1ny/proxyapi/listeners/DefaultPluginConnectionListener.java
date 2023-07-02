@@ -1,7 +1,6 @@
 package me.xra1ny.proxyapi.listeners;
 
 import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.UserNotRegisteredException;
 import me.xra1ny.proxyapi.models.user.RUser;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -37,16 +36,15 @@ public class DefaultPluginConnectionListener implements Listener {
     @EventHandler
     public void onPlayerJoinProxy(@NotNull PostLoginEvent e) {
         try {
-            RUser user;
+            RUser user = RPlugin.getInstance().getUserManager().get(e.getPlayer());
 
-            try {
-                user = RPlugin.getInstance().getUserManager().get(e.getPlayer());
-                user.setTimeout(RPlugin.getInstance().getUserManager().getUserTimeoutHandler().getUserTimeout());
-                user.update();
-            }catch (UserNotRegisteredException ex) {
+            if(user == null) {
                 user = RPlugin.getInstance().getUserManager().getUserClass().getDeclaredConstructor(ProxiedPlayer.class).newInstance(e.getPlayer());
                 RPlugin.getInstance().getUserManager().register(user);
             }
+
+            user.setTimeout(RPlugin.getInstance().getUserManager().getUserTimeoutHandler().getUserTimeout());
+            user.update();
         }catch(Exception ex) {
             RPlugin.getInstance().getLogger().log(Level.SEVERE, "error while executing default player join event handler!", ex);
         }

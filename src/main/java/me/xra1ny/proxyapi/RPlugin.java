@@ -198,6 +198,7 @@ public abstract class RPlugin extends Plugin {
             RPlugin.instance = this;
 
             final PluginInfo info = getClass().getDeclaredAnnotation(PluginInfo.class);
+
             Class<? extends RUser> userClass = RUser.class;
             Class<? extends RUserManager> userManagerClass = RUserManager.class;
 
@@ -216,13 +217,13 @@ public abstract class RPlugin extends Plugin {
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
-            this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
             getLogger().log(Level.INFO, "proxyapi successfully enabled!");
 
             try {
                 getLogger().log(Level.INFO, "attempting to enable external plugin...");
                 onPluginEnable();
                 saveConfig();
+                this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
                 getLogger().log(Level.INFO, "external plugin successfully enabled!");
             }catch(Exception ex) {
                 getLogger().log(Level.SEVERE, "error while enabling external plugin!", ex);

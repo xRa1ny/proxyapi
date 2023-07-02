@@ -1,9 +1,8 @@
 package me.xra1ny.proxyapi.models.command;
 
+import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.exceptions.CommandAlreadyRegisteredException;
-import me.xra1ny.proxyapi.exceptions.CommandNotRegisteredException;
-import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
@@ -61,62 +60,5 @@ public class CommandManager {
         for(Class<? extends RCommand> commandClass : new Reflections(packageName).getSubTypesOf(RCommand.class)) {
             register(commandClass.getDeclaredConstructor().newInstance());
         }
-    }
-
-    /**
-     * unregisters the command specified
-     * @param command the command
-     * @throws CommandNotRegisteredException if the command specified is not yet registered
-     */
-    public void unregister(@NotNull RCommand command) throws CommandNotRegisteredException {
-        RPlugin.getInstance().getLogger().log(Level.INFO, "attempting to unregister command " + command + "...");
-
-        if(!isRegistered(command)) {
-            throw new CommandNotRegisteredException(command);
-        }
-
-        this.commands.remove(command);
-        RPlugin.getInstance().getLogger().log(Level.INFO, "command " + command + " successfully unregistered!");
-    }
-
-    /**
-     * unregisters all command within the package specified
-     * @param packageName the package name
-     * @throws CommandNotRegisteredException if any command within the package specified is not yet registered
-     */
-    public void unregisterAll(@NotNull String packageName) throws CommandNotRegisteredException {
-        RPlugin.getInstance().getLogger().log(Level.INFO, "attempting to unregister all commands in package " + packageName + "...");
-
-        for(RCommand command : this.commands) {
-            if(!command.getClass().getPackage().getName().equals(packageName)) {
-                continue;
-            }
-
-            unregister(command);
-        }
-    }
-
-    /**
-     * unregisters all commands
-     * @throws CommandNotRegisteredException if any command is not yet registered
-     */
-    public void unregisterAll() throws CommandNotRegisteredException {
-        RPlugin.getInstance().getLogger().log(Level.INFO, "attempting to unregister all commands...");
-
-        for(RCommand command : this.commands) {
-            unregister(command);
-        }
-    }
-
-    /**
-     * retrieves all commands with the command name specified
-     * @param commandName the command name
-     * @return all commands with the command name specified
-     */
-    @NotNull
-    public List<RCommand> getAll(@NotNull String commandName) {
-        return this.commands.stream()
-                .filter(command -> command.getName().equals(commandName))
-                .toList();
     }
 }

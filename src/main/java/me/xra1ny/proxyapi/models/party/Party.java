@@ -1,10 +1,8 @@
 package me.xra1ny.proxyapi.models.party;
 
 import lombok.Getter;
-import me.xra1ny.proxyapi.RPlugin;
+import lombok.Setter;
 import me.xra1ny.proxyapi.models.user.RUser;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -24,6 +22,7 @@ public final class Party {
      * the leader of this party
      */
     @Getter(onMethod = @__(@NotNull))
+    @Setter(onParam = @__(@NotNull))
     private RUser leader;
 
     public Party(@NotNull RUser leader) {
@@ -41,44 +40,27 @@ public final class Party {
         }
 
         this.members.add(user);
-
-        for(RUser member : this.members) {
-            member.sendMessage(
-                    ChatColor.YELLOW + member.getPlayer().getName() + RPlugin.getInstance().getChatColor() + " ist der Party " + "beigetreten!"
-            );
-        }
     }
 
     /**
      * removes the user specified from this party
      * @param user the user
      */
-    public void removeMember(@NotNull RUser user) {
+    public void remove(@NotNull RUser user) {
         if(!this.members.contains(user)) {
             return;
         }
 
-        for(RUser member : this.members) {
-            member.sendMessage(
-                    ChatColor.YELLOW + user.getPlayer().getName() + RPlugin.getInstance().getChatColor() + " hat die Party verlassen!"
-            );
-        }
-
-        this.members.remove(user);
-
-        if(this.members.size() == 1) {
-            final RUser last = this.members.get(0);
-
-            this.members.remove(last);
-            last.sendMessage("Die Party wurde aufgrund unzureichender Spieler aufgelöst!");
+        if(this.members.size() <= 2) {
+            this.members.clear();
 
             return;
         }
 
-        if(this.leader.equals(user)) {
-            final RUser leader = this.members.get(new Random().nextInt(this.members.size()));
+        this.members.remove(user);
 
-            setLeader(leader);
+        if(this.leader.equals(user)) {
+            this.leader = this.members.get(new Random().nextInt(this.members.size()));
         }
     }
 
@@ -86,30 +68,9 @@ public final class Party {
      * moves this party to the server specified
      * @param targetServerInfo the server
      */
-    public void move(@NotNull final ServerInfo targetServerInfo) {
+    public void move(@NotNull ServerInfo targetServerInfo) {
         for(RUser member : this.members) {
             member.getPlayer().connect(targetServerInfo);
-            member.getPlayer().sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + "Die Party wechselt auf " + ChatColor.YELLOW + targetServerInfo.getName()
-                    )
-            );
-        }
-    }
-
-    /**
-     * sets the leader of this party to the user specified
-     * @param leader the user
-     */
-    public void setLeader(@NotNull RUser leader) {
-        this.leader = leader;
-
-        for(RUser member : this.members) {
-            member.getPlayer().sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + ChatColor.YELLOW + leader.getPlayer().getName() + ChatColor.GRAY + " ist der neue Partyleader!"
-                    )
-            );
         }
     }
 }
