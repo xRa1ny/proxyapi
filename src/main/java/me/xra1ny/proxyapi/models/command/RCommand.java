@@ -14,9 +14,8 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Stream;
 
 /** Used to create Commands */
@@ -38,12 +37,12 @@ public abstract class RCommand extends Command implements TabExecutor {
      * the valid arguments of this command
      */
     @Getter(onMethod = @__(@NotNull))
-    private final String[] args;
+    private final CommandArg[] args;
 
     @Getter(onMethod = @__(@NotNull))
     private final boolean requiresPlayer;
 
-    public RCommand(@NotNull String name, @NotNull String permission, boolean requiresPlayer, @NotNull String... args) throws ClassNotAnnotatedException {
+    public RCommand(@NotNull String name, @NotNull String permission, boolean requiresPlayer, @NotNull CommandArg... args) throws ClassNotAnnotatedException {
         super(name);
 
         this.name = name;
@@ -61,16 +60,6 @@ public abstract class RCommand extends Command implements TabExecutor {
     protected abstract CommandReturnState executeBaseCommand(@NotNull CommandSender sender) throws Exception;
 
     /**
-     * called when this command is executed with arguments (/command arg1 arg2 arg3)
-     * @param sender the sender
-     * @param args the arguments
-     * @param values the values of any unknown arguments
-     * @return the status of this command execution
-     */
-    @NotNull
-    protected abstract CommandReturnState executeWithArgs(@NotNull CommandSender sender, @NotNull String args, @NotNull String[] values) throws Exception;
-
-    /**
      * Returns the Help Screen for this Command, excluding the Plugin Prefix
      */
     @NotNull
@@ -79,25 +68,15 @@ public abstract class RCommand extends Command implements TabExecutor {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        if(!this.permission.isBlank()) {
-            if(!sender.hasPermission(this.permission)) {
-                sender.sendMessage(
-                        TextComponent.fromLegacyText(
-                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getPlayerNoPermissionErrorMessage()
-                        )
-                );
+        if(!this.permission.isBlank() && !sender.hasPermission(this.permission)) {
+            RPlugin.sendMessage(sender, RPlugin.getInstance().getPlayerNoPermissionErrorMessage());
 
-                return;
-            }
+            return;
         }
 
         if(this.requiresPlayer) {
             if(!(sender instanceof ProxiedPlayer)) {
-                sender.sendMessage(
-                        TextComponent.fromLegacyText(
-                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandOnlyPlayerErrorMessage()
-                        )
-                );
+                RPlugin.sendMessage(sender, RPlugin.getInstance().getCommandOnlyPlayerErrorMessage());
 
                 return;
             }
@@ -112,8 +91,8 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
-            for(String arg : this.args) {
-                final String[] originalArgs = arg.split(" ");
+            for(CommandArg arg : this.args) {
+                final String[] originalArgs = arg.getValue().split(" ");
                 final String[] editedArgs = originalArgs.clone();
 
                 if(originalArgs.length >= args.length) {
@@ -130,24 +109,30 @@ public abstract class RCommand extends Command implements TabExecutor {
             boolean varArg = false;
             int varArgs = 0;
             int varArgsIndex = Integer.MIN_VALUE;
+            final Map<String, CommandArg> argMap = new HashMap<>();
 
-            for(String arg : this.args) {
-                final List<String> originalArgsList = List.of(arg.split(" "));
+            for(CommandArg arg : this.args) {
+                String fullArg = arg.getValue().replaceAll("%.*%", "?");
+                final List<String> originalArgsList = List.of(arg.getValue().split(" "));
 
                 if(originalArgsList.size() >= args.length || originalArgsList.get(originalArgsList.size()-1).endsWith("%*")) {
                     final String finalArg = originalArgsList.get(originalArgsList.size()-1);
 
                     if(List.of(args).size() >= originalArgsList.size() && finalArg.endsWith("%*")) {
+                        fullArg+="*";
                         varArg = true;
 
                         if(varArgsIndex == Integer.MIN_VALUE) {
                             varArgsIndex = originalArgsList.size()-1;
                         }
                     }
+
+                    argMap.put(fullArg, arg);
                 }
             }
 
             final List<String> commandArgs = new ArrayList<>(Stream.of(this.args)
+                    .map(CommandArg::getValue)
                     .map(String::toLowerCase)
                     .toList());
             final List<String> commandValues = new ArrayList<>();
@@ -178,39 +163,47 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
-            final CommandReturnState commandReturnState;
+            final CommandArg arg = argMap.get(builder.toString());
+
+            if(arg != null) {
+                if(!arg.getPermission().isBlank() && !sender.hasPermission(arg.getPermission())) {
+                    RPlugin.sendMessage(sender, RPlugin.getInstance().getPlayerNoPermissionErrorMessage());
+
+                    return;
+                }
+            }
+
+            CommandReturnState commandReturnState = CommandReturnState.INVALID_ARGS;
 
             if(builder.length() > 0) {
-                commandReturnState = executeWithArgs(sender, builder.toString(), commandValues.toArray(new String[0]));
+                for(Method method : getClass().getMethods()) {
+                    final CommandArgHandler handler = method.getDeclaredAnnotation(CommandArgHandler.class);
+
+                    if(handler == null || !Arrays.asList(handler.value()).contains(builder.toString())) {
+                        continue;
+                    }
+
+                    commandReturnState = (CommandReturnState) method.invoke(this, sender, builder.toString(), commandValues.toArray(new String[0]));
+
+                    break;
+                }
             }else {
                 commandReturnState = executeBaseCommand(sender);
             }
 
             if(commandReturnState == CommandReturnState.ERROR) {
-                sender.sendMessage(
-                        TextComponent.fromLegacyText(
-                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandErrorMessage()
-                        )
-                );
+                sender.sendMessage(RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandErrorMessage());
             }else if(commandReturnState == CommandReturnState.INVALID_ARGS) {
-                sender.sendMessage(
-                        TextComponent.fromLegacyText(
-                                RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandInvalidArgsErrorMessage()
-                        )
-                );
+                sender.sendMessage(RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandInvalidArgsErrorMessage());
             }
+
+            return;
         }catch(Exception ex) {
-            sender.sendMessage(
-                    TextComponent.fromLegacyText(
-                            RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandInternalErrorMessage()
-                    )
-            );
-            sender.sendMessage(
-                    TextComponent.fromLegacyText(
-                            ChatColor.RED.toString() + ex
-                    )
-            );
+            sender.sendMessage(RPlugin.getInstance().getPrefix() + RPlugin.getInstance().getCommandInternalErrorMessage());
+            sender.sendMessage(ChatColor.RED.toString() + ex);
         }
+
+        return;
     }
 
     @NotNull
@@ -225,8 +218,8 @@ public abstract class RCommand extends Command implements TabExecutor {
             tabCompleted.add("help");
         }
 
-        for(String arg : this.args) {
-            final String[] originalArgs = arg.split(" ");
+        for(CommandArg arg : this.args) {
+            final String[] originalArgs = arg.getValue().split(" ");
             final String[] editedArgs = originalArgs.clone();
 
             if(originalArgs.length >= args.length || originalArgs[originalArgs.length-1].endsWith("%*")) {
@@ -247,12 +240,12 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
 
                 if(finalArg.startsWith("%") && finalArg.endsWith("%*")) {
-                    tabCompleted.add("<" + finalArg.replace("%", "").replace("%*", "") + ">");
+                    tabCompleted.add(finalArg.replace("%", "").replace("%*", ""));
 
                     break;
                 }
 
-                if(finalArg.equalsIgnoreCase(RPlugin.getInstance().PLAYER_IDENTIFIER)) {
+                if(finalArg.equalsIgnoreCase(CommandArg.PLAYER)) {
                     for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                         if(tabCompleted.contains(player.getName())) {
                             continue;
@@ -260,12 +253,13 @@ public abstract class RCommand extends Command implements TabExecutor {
 
                         tabCompleted.add(player.getName());
                     }
-                }else if(finalArg.startsWith("%NUMBER%")) {
+                }else if(finalArg.startsWith(CommandArg.NUMBER)) {
                     tabCompleted.add("0");
-                }else if(finalArg.startsWith("%BOOLEAN%")) {
-                    tabCompleted.add("<true|false>");
+                }else if(finalArg.startsWith(CommandArg.BOOLEAN)) {
+                    tabCompleted.add("true");
+                    tabCompleted.add("false");
                 }else if(finalArg.startsWith("%") && (finalArg.endsWith("%") || finalArg.endsWith("%*"))) {
-                    tabCompleted.add("<" + finalArg.replace("%", "").replace("%*", "") + ">");
+                    tabCompleted.add(finalArg.replace("%", "").replace("%*", ""));
                 }else {
                     tabCompleted.add(finalArg);
                 }
@@ -273,6 +267,7 @@ public abstract class RCommand extends Command implements TabExecutor {
         }
 
         final List<String> commandArgs = new ArrayList<>(Stream.of(this.args)
+                .map(CommandArg::getValue)
                 .map(String::toLowerCase)
                 .toList());
         final StringBuilder builder = new StringBuilder();

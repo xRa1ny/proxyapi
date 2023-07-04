@@ -93,11 +93,9 @@ public class RUserManager {
      */
     @Nullable
     public <T extends RUser> T get(@NotNull UUID uuid) {
-        final T user = (T) this.users.stream()
+        return (T) this.users.stream()
                 .filter(_user -> _user.getPlayer().getUniqueId().equals(uuid))
                 .findFirst().orElse(null);
-
-        return user;
     }
 
     /**
