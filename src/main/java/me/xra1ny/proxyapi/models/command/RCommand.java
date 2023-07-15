@@ -158,11 +158,13 @@ public abstract class RCommand extends Command implements TabExecutor {
                         builder.append(builder.length() > 0 ? " " : "").append("?");
                     }
 
-                    if(String.join(" ", List.of(args).stream()
-                            .limit(varArgsArgs.split(" ").length)
-                            .toList()).equals(varArgsArgs)) {
-                        builder.append(varArgs == 0 ? "*" : "");
-                        varArgs++;
+                    if(varArgsArgs != null) {
+                        if(String.join(" ", List.of(args).stream()
+                                .limit(varArgsArgs.split(" ").length)
+                                .toList()).equals(varArgsArgs)) {
+                            builder.append(varArgs == 0 ? "*" : "");
+                            varArgs++;
+                        }
                     }
 
                     commandValues.add(arg);
