@@ -108,32 +108,36 @@ public abstract class RCommand extends Command implements TabExecutor {
 
             boolean varArg = false;
             int varArgs = 0;
-            int varArgsIndex = Integer.MIN_VALUE;
+            String varArgsArgs = null;
             final Map<String, CommandArg> argMap = new HashMap<>();
+            final Map<String, CommandArg> formattedArgMap = new HashMap<>();
 
             for(CommandArg arg : this.args) {
-                String fullArg = arg.getValue().replaceAll("%.*%", "?");
+                String fullArg = arg.getValue();
                 final List<String> originalArgsList = List.of(arg.getValue().split(" "));
 
-                if(originalArgsList.size() >= args.length || originalArgsList.get(originalArgsList.size()-1).endsWith("%*")) {
+                if(originalArgsList.size() >= args.length || originalArgsList.get(originalArgsList.size()-1).endsWith("*")) {
                     final String finalArg = originalArgsList.get(originalArgsList.size()-1);
 
-                    if(List.of(args).size() >= originalArgsList.size() && finalArg.endsWith("%*")) {
-                        fullArg+="*";
+                    if(List.of(args).size() >= originalArgsList.size() && finalArg.endsWith("*")) {
                         varArg = true;
 
-                        if(varArgsIndex == Integer.MIN_VALUE) {
-                            varArgsIndex = originalArgsList.size()-1;
+                        if(varArgsArgs == null) {
+                            varArgsArgs = String.join(" ", Arrays.stream(arg.getValue().split(" "))
+                                    .limit(arg.getValue().split(" ").length-1)
+                                    .toList());
                         }
                     }
 
                     argMap.put(fullArg, arg);
+                    formattedArgMap.put(fullArg.replaceAll("%.*%", "?"), arg);
                 }
             }
 
             final List<String> commandArgs = new ArrayList<>(Stream.of(this.args)
                     .map(CommandArg::getValue)
                     .map(String::toLowerCase)
+                    .map(arg -> arg.replaceAll("%.*%", "?"))
                     .toList());
             final List<String> commandValues = new ArrayList<>();
             final StringBuilder builder = new StringBuilder();
@@ -154,8 +158,10 @@ public abstract class RCommand extends Command implements TabExecutor {
                         builder.append(builder.length() > 0 ? " " : "").append("?");
                     }
 
-                    if(List.of(args).indexOf(arg) >= varArgsIndex) {
-                        builder.append(varArg && varArgs == 0 ? "*" : "");
+                    if(String.join(" ", List.of(args).stream()
+                            .limit(varArgsArgs.split(" ").length)
+                            .toList()).equals(varArgsArgs)) {
+                        builder.append(varArgs == 0 ? "*" : "");
                         varArgs++;
                     }
 
@@ -163,7 +169,8 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
-            final CommandArg arg = argMap.get(builder.toString());
+            final CommandArg arg = formattedArgMap.get(builder.toString());
+            CommandReturnState commandReturnState = CommandReturnState.INVALID_ARGS;
 
             if(arg != null) {
                 if(!arg.getPermission().isBlank() && !sender.hasPermission(arg.getPermission())) {
@@ -171,23 +178,23 @@ public abstract class RCommand extends Command implements TabExecutor {
 
                     return;
                 }
+
+                if(builder.length() > 0) {
+                    for(Method method : getClass().getMethods()) {
+                        final CommandArgHandler handler = method.getDeclaredAnnotation(CommandArgHandler.class);
+
+                        if(handler == null || !Arrays.asList(handler.value()).contains(arg.getValue())) {
+                            continue;
+                        }
+
+                        commandReturnState = (CommandReturnState) method.invoke(this, sender, arg.getValue(), commandValues.toArray(new String[0]));
+
+                        break;
+                    }
+                }
             }
 
-            CommandReturnState commandReturnState = CommandReturnState.INVALID_ARGS;
-
-            if(builder.length() > 0) {
-                for(Method method : getClass().getMethods()) {
-                    final CommandArgHandler handler = method.getDeclaredAnnotation(CommandArgHandler.class);
-
-                    if(handler == null || !Arrays.asList(handler.value()).contains(builder.toString())) {
-                        continue;
-                    }
-
-                    commandReturnState = (CommandReturnState) method.invoke(this, sender, builder.toString(), commandValues.toArray(new String[0]));
-
-                    break;
-                }
-            }else {
+            if(builder.length() == 0) {
                 commandReturnState = executeBaseCommand(sender);
             }
 
