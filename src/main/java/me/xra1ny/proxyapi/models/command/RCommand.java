@@ -130,22 +130,17 @@ public abstract class RCommand extends Command implements TabExecutor {
                     }
 
                     argMap.put(fullArg, arg);
-                    formattedArgMap.put(fullArg.replaceAll("%.*%", "?"), arg);
+                    formattedArgMap.put(fullArg.replaceAll("%[a-zA-Z]*%", "?"), arg);
                 }
             }
 
-            final List<String> commandArgs = new ArrayList<>(Stream.of(this.args)
-                    .map(CommandArg::getValue)
-                    .map(String::toLowerCase)
-                    .map(arg -> arg.replaceAll("%.*%", "?"))
-                    .toList());
             final List<String> commandValues = new ArrayList<>();
             final StringBuilder builder = new StringBuilder();
 
             for(String arg : args) {
                 boolean contains = false;
 
-                for(String commandArg : commandArgs) {
+                for(String commandArg : formattedArgMap.keySet()) {
                     if(Arrays.asList(commandArg.split(" ")).contains(arg.toLowerCase())) {
                         contains = true;
                     }
