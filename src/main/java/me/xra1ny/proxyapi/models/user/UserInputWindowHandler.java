@@ -23,6 +23,16 @@ public class UserInputWindowHandler extends RRepeatableTask {
     }
 
     @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+    }
+
+    @Override
     public void onTick() {
         for(Map.Entry<RUser, Integer> entry : this.inputWindow.getUsers().entrySet()) {
             for(int i = 0; i < 50; i++) {

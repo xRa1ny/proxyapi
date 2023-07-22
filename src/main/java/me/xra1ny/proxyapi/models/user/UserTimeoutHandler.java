@@ -17,6 +17,16 @@ public class UserTimeoutHandler extends RRepeatableTask {
     }
 
     @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+    }
+
+    @Override
     public void onTick() throws Exception {
         for(RUser user : RPlugin.getInstance().getUserManager().getUsers()) {
             if(user.getPlayer() != null && user.getPlayer().isConnected()) {
