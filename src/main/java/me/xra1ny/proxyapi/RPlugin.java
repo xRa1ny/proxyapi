@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.xra1ny.proxyapi.models.color.HexCodeManager;
 import me.xra1ny.proxyapi.models.command.CommandManager;
 import me.xra1ny.proxyapi.models.listener.ListenerManager;
+import me.xra1ny.proxyapi.models.localisation.LocalisationManager;
 import me.xra1ny.proxyapi.models.maintenance.ProxyMaintenanceManager;
 import me.xra1ny.proxyapi.models.party.PartyManager;
 import me.xra1ny.proxyapi.models.user.RUser;
@@ -179,6 +180,9 @@ public abstract class RPlugin extends Plugin {
     @Getter(onMethod = @__(@NotNull))
     private PartyManager partyManager;
 
+    @Getter(onMethod = @__(@NotNull))
+    private LocalisationManager localisationManager;
+
     public final String PLAYER_IDENTIFIER = "%PLAYER%";
 
     /**
@@ -217,6 +221,7 @@ public abstract class RPlugin extends Plugin {
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
+            this.localisationManager = new LocalisationManager(info.localisationConfigUrls());
             this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
             getLogger().log(Level.INFO, "proxyapi successfully enabled!");
 

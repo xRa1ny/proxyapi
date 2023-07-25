@@ -24,4 +24,7 @@ public @interface PluginInfo {
      */
     @NotNull
     Class<? extends RUserManager> userManagerClass() default RUserManager.class;
+
+    @NotNull
+    String[] localisationConfigUrls() default {};
 }

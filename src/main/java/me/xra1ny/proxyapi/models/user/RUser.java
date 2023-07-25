@@ -3,6 +3,7 @@ package me.xra1ny.proxyapi.models.user;
 import lombok.Getter;
 import lombok.Setter;
 import me.xra1ny.proxyapi.RPlugin;
+import me.xra1ny.proxyapi.models.localisation.Replacement;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,10 @@ public class RUser {
     @Getter(onMethod = @__(@NotNull))
     private final List<RUser> ignored = new ArrayList<>();
 
+    @Getter(onMethod = @__(@Nullable))
+    @Setter(onParam = @__(@NotNull))
+    private String localisationConfigName;
+
     public RUser(@NotNull ProxiedPlayer player) {
         this.player = player;
         this.timeout = RPlugin.getInstance().getUserManager().getUserTimeoutHandler().getUserTimeout();
@@ -57,5 +62,13 @@ public class RUser {
 
     public void sendMessage(@NotNull String... message) {
         RPlugin.sendMessage(this.player, message);
+    }
+
+    public void sendTranslatedMessage(@NotNull String localisationConfigName, @NotNull String key, @NotNull Replacement... replacements) {
+        sendMessage(RPlugin.getInstance().getLocalisationManager().get(localisationConfigName, key, replacements));
+    }
+
+    public void sendTranslatedMessage(@NotNull String key, @NotNull Replacement... replacements) {
+        sendTranslatedMessage(this.localisationConfigName, key, replacements);
     }
 }
