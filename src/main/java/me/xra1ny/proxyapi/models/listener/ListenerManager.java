@@ -2,8 +2,8 @@ package me.xra1ny.proxyapi.models.listener;
 
 import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.ListenerAlreadyRegisteredException;
-import me.xra1ny.proxyapi.exceptions.ListenerNotRegisteredException;
+import me.xra1ny.proxyapi.exceptions.listener.ListenerAlreadyRegisteredException;
+import me.xra1ny.proxyapi.exceptions.listener.ListenerNotRegisteredException;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import org.jetbrains.annotations.NotNull;

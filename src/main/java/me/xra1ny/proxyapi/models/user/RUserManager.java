@@ -2,8 +2,8 @@ package me.xra1ny.proxyapi.models.user;
 
 import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.UserAlreadyRegisteredException;
-import me.xra1ny.proxyapi.exceptions.UserNotRegisteredException;
+import me.xra1ny.proxyapi.exceptions.user.UserAlreadyRegisteredException;
+import me.xra1ny.proxyapi.exceptions.user.UserNotRegisteredException;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package me.xra1ny.proxyapi.exceptions;
+package me.xra1ny.proxyapi.exceptions.color;
 
 import me.xra1ny.proxyapi.models.exception.RainbowException;
 

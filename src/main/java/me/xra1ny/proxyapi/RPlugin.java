@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.xra1ny.proxyapi.models.color.HexCodeManager;
 import me.xra1ny.proxyapi.models.command.CommandManager;
+import me.xra1ny.proxyapi.models.config.ConfigManager;
 import me.xra1ny.proxyapi.models.listener.ListenerManager;
 import me.xra1ny.proxyapi.models.localisation.LocalisationManager;
 import me.xra1ny.proxyapi.models.maintenance.ProxyMaintenanceManager;
@@ -183,6 +184,9 @@ public abstract class RPlugin extends Plugin {
     @Getter(onMethod = @__(@NotNull))
     private LocalisationManager localisationManager;
 
+    @Getter(onMethod = @__(@NotNull))
+    private ConfigManager configManager;
+
     public final String PLAYER_IDENTIFIER = "%PLAYER%";
 
     /**
@@ -205,10 +209,12 @@ public abstract class RPlugin extends Plugin {
 
             Class<? extends RUser> userClass = RUser.class;
             Class<? extends RUserManager> userManagerClass = RUserManager.class;
+            String[] localisationConfigUrls = {};
 
             if(info != null) {
                 userClass = info.userClass();
                 userManagerClass = info.userManagerClass();
+                localisationConfigUrls = info.localisationConfigUrls();
             }
 
             this.configFile = new File(getDataFolder(), "config.yml");
@@ -221,7 +227,8 @@ public abstract class RPlugin extends Plugin {
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
-            this.localisationManager = new LocalisationManager(info.localisationConfigUrls());
+            this.localisationManager = new LocalisationManager(localisationConfigUrls);
+            this.configManager = new ConfigManager();
             this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
             getLogger().log(Level.INFO, "proxyapi successfully enabled!");
 

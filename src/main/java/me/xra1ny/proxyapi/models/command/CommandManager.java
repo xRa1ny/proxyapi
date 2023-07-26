@@ -2,7 +2,7 @@ package me.xra1ny.proxyapi.models.command;
 
 import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.CommandAlreadyRegisteredException;
+import me.xra1ny.proxyapi.exceptions.command.CommandAlreadyRegisteredException;
 import net.md_5.bungee.api.ProxyServer;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;

@@ -2,8 +2,8 @@ package me.xra1ny.proxyapi.models.party;
 
 import lombok.Getter;
 import me.xra1ny.proxyapi.RPlugin;
-import me.xra1ny.proxyapi.exceptions.PartyAlreadyRegisteredException;
-import me.xra1ny.proxyapi.exceptions.PartyNotRegisteredException;
+import me.xra1ny.proxyapi.exceptions.party.PartyAlreadyRegisteredException;
+import me.xra1ny.proxyapi.exceptions.party.PartyNotRegisteredException;
 import me.xra1ny.proxyapi.models.user.RUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,4 +1,4 @@
-package me.xra1ny.proxyapi.exceptions;
+package me.xra1ny.proxyapi.exceptions.command;
 
 import me.xra1ny.proxyapi.models.command.RCommand;
 import me.xra1ny.proxyapi.models.exception.RPluginException;

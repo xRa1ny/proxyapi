@@ -1,4 +1,4 @@
-package me.xra1ny.proxyapi.exceptions;
+package me.xra1ny.proxyapi.exceptions.user;
 
 import me.xra1ny.proxyapi.models.exception.RPluginException;
 import me.xra1ny.proxyapi.models.user.UserInputWindow;

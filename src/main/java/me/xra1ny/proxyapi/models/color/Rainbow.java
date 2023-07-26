@@ -1,8 +1,8 @@
 package me.xra1ny.proxyapi.models.color;
 
-import me.xra1ny.proxyapi.exceptions.HomogeneousRainbowException;
-import me.xra1ny.proxyapi.exceptions.InvalidColorException;
-import me.xra1ny.proxyapi.exceptions.NumberRangeException;
+import me.xra1ny.proxyapi.exceptions.color.HomogeneousRainbowException;
+import me.xra1ny.proxyapi.exceptions.color.InvalidColorException;
+import me.xra1ny.proxyapi.exceptions.color.NumberRangeException;
 
 import java.util.ArrayList;
 

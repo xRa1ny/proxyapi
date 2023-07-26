@@ -1,4 +1,4 @@
-package me.xra1ny.proxyapi.exceptions;
+package me.xra1ny.proxyapi.exceptions.listener;
 
 import me.xra1ny.proxyapi.models.exception.RPluginException;
 import net.md_5.bungee.api.plugin.Listener;
