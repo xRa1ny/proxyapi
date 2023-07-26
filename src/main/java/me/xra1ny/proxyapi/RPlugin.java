@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.xra1ny.proxyapi.models.color.HexCodeManager;
 import me.xra1ny.proxyapi.models.command.CommandManager;
 import me.xra1ny.proxyapi.models.config.ConfigManager;
+import me.xra1ny.proxyapi.models.config.RConfig;
 import me.xra1ny.proxyapi.models.listener.ListenerManager;
 import me.xra1ny.proxyapi.models.localisation.LocalisationManager;
 import me.xra1ny.proxyapi.models.maintenance.ProxyMaintenanceManager;
@@ -236,6 +237,11 @@ public abstract class RPlugin extends Plugin {
                 getLogger().log(Level.INFO, "attempting to enable external plugin...");
                 onPluginEnable();
                 saveConfig();
+
+                for(RConfig _config : this.configManager.getConfigs()) {
+                    _config.update();
+                }
+
                 getLogger().log(Level.INFO, "external plugin successfully enabled!");
             }catch(Exception ex) {
                 getLogger().log(Level.SEVERE, "error while enabling external plugin!", ex);
