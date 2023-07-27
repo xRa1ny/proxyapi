@@ -31,9 +31,17 @@ public abstract class RConfig {
             throw new ClassNotAnnotatedException(getClass(), ConfigInfo.class);
         }
 
-        this.name = info.value();
-        this.configFile = new File(this.name);
+        this.configFile = new File(info.value());
         this.configFile.createNewFile();
+        this.name = this.configFile.getName();
+        this.config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(this.configFile);
+    }
+
+    @SneakyThrows
+    public RConfig(@NotNull String configFileName) {
+        this.configFile = new File(configFileName);
+        this.configFile.createNewFile();
+        this.name = this.configFile.getName();
         this.config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(this.configFile);
     }
 
