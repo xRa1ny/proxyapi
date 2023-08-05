@@ -163,6 +163,10 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
+            if(finalCommandArg == null) {
+                commandReturnState = executeBaseCommand(sender);
+            }
+
             if(commandReturnState == CommandReturnState.ERROR) {
                 if(sender instanceof ProxiedPlayer) {
                     RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigName(), RPlugin.getInstance().getCommandErrorMessage()) : RPlugin.getInstance().getCommandErrorMessage()));
