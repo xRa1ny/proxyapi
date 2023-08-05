@@ -15,8 +15,11 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 /** Used to create Commands */
@@ -99,112 +102,68 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
-            for(CommandArg arg : this.args) {
-                final String[] originalArgs = arg.getValue().split(" ");
-                final String[] editedArgs = originalArgs.clone();
-
-                if(originalArgs.length >= args.length) {
-                    for(int i = 0; i < args.length; i++) {
-                        if (!originalArgs[i].startsWith("%") && !originalArgs[i].endsWith("%") && !originalArgs[i].endsWith("*")) {
-                            continue;
-                        }
-
-                        editedArgs[i] = args[i];
-                    }
-                }
-            }
-
-            boolean varArg = false;
-            int varArgs = 0;
-            String varArgsArgs = null;
-            final Map<String, CommandArg> argMap = new HashMap<>();
-            final Map<String, CommandArg> formattedArgMap = new HashMap<>();
-
-            for(CommandArg arg : this.args) {
-                String fullArg = arg.getValue();
-                final List<String> originalArgsList = List.of(arg.getValue().split(" "));
-
-                if(originalArgsList.size() >= args.length || originalArgsList.get(originalArgsList.size()-1).endsWith("*")) {
-                    final String finalArg = originalArgsList.get(originalArgsList.size()-1);
-
-                    if(List.of(args).size() >= originalArgsList.size() && finalArg.endsWith("*")) {
-                        varArg = true;
-
-                        if(varArgsArgs == null) {
-                            varArgsArgs = String.join(" ", Arrays.stream(arg.getValue().split(" "))
-                                    .limit(arg.getValue().split(" ").length-1)
-                                    .toList());
-                        }
-                    }
-
-                    argMap.put(fullArg, arg);
-                    formattedArgMap.put(fullArg.replaceAll("%[a-zA-Z]*%", "?"), arg);
-                }
-            }
-
-            final List<String> commandValues = new ArrayList<>();
-            final StringBuilder builder = new StringBuilder();
+            final StringBuilder formattedArgsBuilder = new StringBuilder();
+            final List<String> values = new ArrayList<>();
 
             for(String arg : args) {
                 boolean contains = false;
 
-                for(String commandArg : formattedArgMap.keySet()) {
-                    if(Arrays.asList(commandArg.split(" ")).contains(arg.toLowerCase())) {
+                for(CommandArg commandArg : this.args) {
+                    final String[] splitCommandArg = commandArg.getValue().split(" ");
+                    boolean containsArg = false;
+
+                    for(String singleCommandArg : splitCommandArg) {
+                        if(singleCommandArg.equalsIgnoreCase(arg)) {
+                            containsArg = true;
+
+                            break;
+                        }
+                    }
+
+                    if(containsArg) {
                         contains = true;
-                    }
-                }
-
-                if(contains) {
-                    builder.append(builder.length() > 0 ? " " : "").append(arg);
-                }else {
-                    if(!varArg || varArgs == 0) {
-                        builder.append(builder.length() > 0 ? " " : "").append("?");
-                    }
-
-                    if(varArgsArgs != null) {
-                        if(String.join(" ", List.of(args).stream()
-                                .limit(varArgsArgs.split(" ").length)
-                                .toList()).equals(varArgsArgs)) {
-                            builder.append(varArgs == 0 ? "*" : "");
-                            varArgs++;
-                        }
-                    }
-
-                    commandValues.add(arg);
-                }
-            }
-
-            final CommandArg arg = formattedArgMap.get(builder.toString());
-            CommandReturnState commandReturnState = CommandReturnState.INVALID_ARGS;
-
-            if(arg != null) {
-                if(!arg.getPermission().isBlank() && !sender.hasPermission(arg.getPermission())) {
-                    if(sender instanceof ProxiedPlayer) {
-                        RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigName(), RPlugin.getInstance().getPlayerNoPermissionErrorMessage()) : RPlugin.getInstance().getPlayerNoPermissionErrorMessage()));
-                    }else {
-                        RPlugin.sendMessage(sender, RPlugin.getInstance().getPlayerNoPermissionErrorMessage());
-                    }
-
-                    return;
-                }
-
-                if(builder.length() > 0) {
-                    for(Method method : getClass().getMethods()) {
-                        final CommandArgHandler handler = method.getDeclaredAnnotation(CommandArgHandler.class);
-
-                        if(handler == null || !Arrays.asList(handler.value()).contains(arg.getValue())) {
-                            continue;
-                        }
-
-                        commandReturnState = (CommandReturnState) method.invoke(this, sender, arg.getValue(), commandValues.toArray(new String[0]));
 
                         break;
                     }
                 }
+
+                if(contains) {
+                    formattedArgsBuilder.append(!formattedArgsBuilder.isEmpty() ? " " : "").append(arg);
+
+                    continue;
+                }
+
+                formattedArgsBuilder.append(!formattedArgsBuilder.isEmpty() ? " " : "").append("?");
+                values.add(arg);
             }
 
-            if(builder.length() == 0) {
-                commandReturnState = executeBaseCommand(sender);
+            System.out.println("formatted: " + formattedArgsBuilder);
+            System.out.println("values: " + values);
+
+            CommandArg finalCommandArg = null;
+
+            for(CommandArg commandArg : this.args) {
+                if(commandArg.getFormattedValue().equalsIgnoreCase(formattedArgsBuilder.toString())) {
+                    finalCommandArg = commandArg;
+
+                    break;
+                }
+            }
+
+            CommandReturnState commandReturnState = null;
+
+            if(finalCommandArg != null) {
+                commandReturnState = executeCommandArgHandlerMethod(sender, finalCommandArg, values.toArray(new String[0]));
+            }else {
+                for(CommandArg commandArg : this.args) {
+                    if(!formattedArgsBuilder.toString().startsWith(commandArg.getFormattedValue().replace("*", ""))) {
+                        continue;
+                    }
+
+                    commandReturnState = executeCommandArgHandlerMethod(sender, commandArg, values.toArray(new String[0]));
+
+                    break;
+                }
             }
 
             if(commandReturnState == CommandReturnState.ERROR) {
@@ -230,6 +189,31 @@ public abstract class RCommand extends Command implements TabExecutor {
             sender.sendMessage(ChatColor.RED.toString() + ex);
             ex.printStackTrace();
         }
+    }
+
+    @NotNull
+    private CommandReturnState executeCommandArgHandlerMethod(@NotNull CommandSender sender, @NotNull CommandArg commandArg, @NotNull String @NotNull [] values) throws InvocationTargetException, IllegalAccessException {
+        System.out.println("fetched arg: " + commandArg.getValue());
+
+        Method commandArgHandlerMethod = null;
+
+        for(Method method : getClass().getMethods()) {
+            final CommandArgHandler commandArgHandler = method.getDeclaredAnnotation(CommandArgHandler.class);
+
+            if(commandArgHandler == null || !List.of(commandArgHandler.value()).contains(commandArg.getValue())) {
+                continue;
+            }
+
+            commandArgHandlerMethod = method;
+
+            break;
+        }
+
+        if(commandArgHandlerMethod == null) {
+            return CommandReturnState.INVALID_ARGS;
+        }
+
+        return (CommandReturnState) commandArgHandlerMethod.invoke(this, sender, commandArg, values);
     }
 
     @NotNull

@@ -21,4 +21,9 @@ public class CommandArg {
     @Builder.Default
     @Getter
     private boolean player = false;
+
+    @NotNull
+    public String getFormattedValue() {
+        return this.value.replaceAll("%[A-Za-z0-9]*%", "?");
+    }
 }
