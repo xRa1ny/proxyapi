@@ -137,9 +137,6 @@ public abstract class RCommand extends Command implements TabExecutor {
                 values.add(arg);
             }
 
-            System.out.println("formatted: " + formattedArgsBuilder);
-            System.out.println("values: " + values);
-
             CommandArg finalCommandArg = null;
 
             for(CommandArg commandArg : this.args) {
@@ -193,8 +190,6 @@ public abstract class RCommand extends Command implements TabExecutor {
 
     @NotNull
     private CommandReturnState executeCommandArgHandlerMethod(@NotNull CommandSender sender, @NotNull CommandArg commandArg, @NotNull String @NotNull [] values) throws InvocationTargetException, IllegalAccessException {
-        System.out.println("fetched arg: " + commandArg.getValue());
-
         Method commandArgHandlerMethod = null;
 
         for(Method method : getClass().getMethods()) {
