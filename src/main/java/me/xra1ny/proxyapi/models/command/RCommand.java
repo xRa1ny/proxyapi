@@ -163,7 +163,7 @@ public abstract class RCommand extends Command implements TabExecutor {
                 }
             }
 
-            if(finalCommandArg == null) {
+            if(commandReturnState == null) {
                 commandReturnState = executeBaseCommand(sender);
             }
 
