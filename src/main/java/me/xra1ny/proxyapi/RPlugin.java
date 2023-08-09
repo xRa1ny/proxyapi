@@ -210,12 +210,12 @@ public abstract class RPlugin extends Plugin {
 
             Class<? extends RUser> userClass = RUser.class;
             Class<? extends RUserManager> userManagerClass = RUserManager.class;
-            String[] localisationConfigUrls = {};
+            Class<? extends RConfig>[] localisationConfigClasses = new Class[0];
 
             if(info != null) {
                 userClass = info.userClass();
                 userManagerClass = info.userManagerClass();
-                localisationConfigUrls = info.localisationConfigUrls();
+                localisationConfigClasses = info.localisationConfigClasses();
             }
 
             this.configFile = new File(getDataFolder(), "config.yml");
@@ -228,7 +228,7 @@ public abstract class RPlugin extends Plugin {
             this.userInputWindowManager = new UserInputWindowManager();
             this.hexCodeManager = new HexCodeManager();
             this.partyManager = new PartyManager();
-            this.localisationManager = new LocalisationManager(localisationConfigUrls);
+            this.localisationManager = new LocalisationManager(localisationConfigClasses);
             this.configManager = new ConfigManager();
             this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
             getLogger().log(Level.INFO, "proxyapi successfully enabled!");

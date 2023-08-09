@@ -169,20 +169,20 @@ public abstract class RCommand extends Command implements TabExecutor {
 
             if(commandReturnState == CommandReturnState.ERROR) {
                 if(sender instanceof ProxiedPlayer) {
-                    RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigName(), RPlugin.getInstance().getCommandErrorMessage()) : RPlugin.getInstance().getCommandErrorMessage()));
+                    RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigClass(), RPlugin.getInstance().getCommandErrorMessage()) : RPlugin.getInstance().getCommandErrorMessage()));
                 }else {
                     RPlugin.sendMessage(sender, RPlugin.getInstance().getCommandErrorMessage());
                 }
             }else if(commandReturnState == CommandReturnState.INVALID_ARGS) {
                 if(sender instanceof ProxiedPlayer) {
-                    RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigName(), RPlugin.getInstance().getCommandInvalidArgsErrorMessage()) : RPlugin.getInstance().getCommandInvalidArgsErrorMessage()));
+                    RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigClass(), RPlugin.getInstance().getCommandInvalidArgsErrorMessage()) : RPlugin.getInstance().getCommandInvalidArgsErrorMessage()));
                 }else {
                     RPlugin.sendMessage(sender, RPlugin.getInstance().getCommandInvalidArgsErrorMessage());
                 }
             }
         }catch(Exception ex) {
             if(sender instanceof ProxiedPlayer) {
-                RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigName(), RPlugin.getInstance().getCommandInternalErrorMessage()) : RPlugin.getInstance().getCommandInternalErrorMessage()));
+                RPlugin.sendMessage(sender, (this.localised ? RPlugin.getInstance().getLocalisationManager().get(user.getLocalisationConfigClass(), RPlugin.getInstance().getCommandInternalErrorMessage()) : RPlugin.getInstance().getCommandInternalErrorMessage()));
             }else {
                 RPlugin.sendMessage(sender, RPlugin.getInstance().getCommandInternalErrorMessage());
             }
@@ -304,7 +304,7 @@ public abstract class RCommand extends Command implements TabExecutor {
 
     private void sendHelpScreen(@NotNull CommandSender sender) {
         for(String line : help(sender)) {
-            final String finalLine = (sender instanceof ProxiedPlayer ? this.localised ? RPlugin.getInstance().getLocalisationManager().get(RPlugin.getInstance().getUserManager().get((ProxiedPlayer) sender).getLocalisationConfigName(), line) : line : line);
+            final String finalLine = (sender instanceof ProxiedPlayer ? this.localised ? RPlugin.getInstance().getLocalisationManager().get(RPlugin.getInstance().getUserManager().get((ProxiedPlayer) sender).getLocalisationConfigClass(), line) : line : line);
 
             sender.sendMessage(
                     TextComponent.fromLegacyText(

@@ -1,31 +1,29 @@
 package me.xra1ny.proxyapi.models.localisation;
 
-import net.md_5.bungee.config.Configuration;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
+import me.xra1ny.proxyapi.models.config.RConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LocalisationManager {
-    private final Map<String, Configuration> configs = new HashMap<>();
+    private final Map<Class<? extends RConfig>, RConfig> configs = new HashMap<>();
 
-    public LocalisationManager(@NotNull String... configUrls) throws IOException {
-        for(String configUrl : configUrls) {
-            final File configFile = new File(configUrl);
-            final Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+    @SafeVarargs
+    public LocalisationManager(@NotNull Class<? extends RConfig>... configClasses) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        for(Class<? extends RConfig> configClass : configClasses) {
+            final RConfig config = configClass.getDeclaredConstructor().newInstance();
 
-            this.configs.put(configFile.getName(), config);
+            config.update();
+            this.configs.put(configClass, config);
         }
     }
 
     @Nullable
-    public String get(@NotNull String configName, @NotNull String key, @NotNull Replacement... replacements) {
-        String value = configs.get(configName).getString(key);
+    public String get(@NotNull Class<? extends RConfig> configClass, @NotNull String key, @NotNull Replacement... replacements) {
+        String value = configs.get(configClass).get(String.class, key);
 
         if(value == null) {
             return null;

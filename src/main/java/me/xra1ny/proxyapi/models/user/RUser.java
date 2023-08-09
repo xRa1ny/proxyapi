@@ -3,6 +3,7 @@ package me.xra1ny.proxyapi.models.user;
 import lombok.Getter;
 import lombok.Setter;
 import me.xra1ny.proxyapi.RPlugin;
+import me.xra1ny.proxyapi.models.config.RConfig;
 import me.xra1ny.proxyapi.models.localisation.Replacement;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -42,7 +43,7 @@ public class RUser {
 
     @Getter(onMethod = @__(@Nullable))
     @Setter(onParam = @__(@NotNull))
-    private String localisationConfigName;
+    private Class<? extends RConfig> localisationConfigClass;
 
     public RUser(@NotNull ProxiedPlayer player) {
         this.player = player;
@@ -64,11 +65,11 @@ public class RUser {
         RPlugin.sendMessage(this.player, message);
     }
 
-    public void sendTranslatedMessage(@NotNull String localisationConfigName, @NotNull String key, @NotNull Replacement... replacements) {
-        sendMessage(RPlugin.getInstance().getLocalisationManager().get(localisationConfigName, key, replacements));
+    public void sendTranslatedMessage(@NotNull Class<? extends RConfig> localisationConfigClass, @NotNull String key, @NotNull Replacement... replacements) {
+        sendMessage(RPlugin.getInstance().getLocalisationManager().get(localisationConfigClass, key, replacements));
     }
 
     public void sendTranslatedMessage(@NotNull String key, @NotNull Replacement... replacements) {
-        sendTranslatedMessage(this.localisationConfigName, key, replacements);
+        sendTranslatedMessage(this.localisationConfigClass, key, replacements);
     }
 }
