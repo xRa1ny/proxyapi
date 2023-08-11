@@ -33,6 +33,11 @@ public class ProxyMaintenanceManager {
     public ProxyMaintenanceManager(boolean enabled, @NotNull String message) {
         this.enabled = enabled;
         this.message = message;
+
+        for(String key : RPlugin.getInstance().getConfig().getStringList(ConfigKeys.MAINTENANCE_IGNORED)) {
+            this.ignoredUsers.add(UUID.fromString(key));
+        }
+
         updateConfig();
     }
 
