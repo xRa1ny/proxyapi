@@ -231,6 +231,7 @@ public abstract class RPlugin extends Plugin {
             this.localisationManager = new LocalisationManager(localisationConfigClasses);
             this.configManager = new ConfigManager();
             this.listenerManager.registerAll("me.xra1ny.proxyapi.listeners");
+            this.commandManager.registerAll("me.xra1ny.proxyapi.commands");
             getLogger().log(Level.INFO, "proxyapi successfully enabled!");
 
             try {
@@ -242,6 +243,7 @@ public abstract class RPlugin extends Plugin {
                     _config.update();
                 }
 
+                reloadNonMySqlValues();
                 getLogger().log(Level.INFO, "external plugin successfully enabled!");
             }catch(Exception ex) {
                 getLogger().log(Level.SEVERE, "error while enabling external plugin!", ex);
@@ -433,5 +435,20 @@ public abstract class RPlugin extends Plugin {
 
     public <T extends ProxyMaintenanceManager> T getProxyMaintenanceManager() {
         return (T) proxyMaintenanceManager;
+    }
+
+    /**
+     * called when this plugin enables or reloadNonMySqlValues() is called
+     */
+    protected abstract void onNonMySqlValueInitialisation() throws Exception;
+
+    public void reloadNonMySqlValues() {
+        try {
+            getLogger().log(Level.INFO, "reloading non mysql values...");
+            onNonMySqlValueInitialisation();
+            getLogger().log(Level.INFO, "non mysql values reloaded!");
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "error while reloading non mysql values!", e);
+        }
     }
 }
