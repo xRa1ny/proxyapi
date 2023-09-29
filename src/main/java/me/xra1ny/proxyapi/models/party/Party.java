@@ -2,6 +2,8 @@ package me.xra1ny.proxyapi.models.party;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import me.xra1ny.proxyapi.RPlugin;
 import me.xra1ny.proxyapi.models.user.RUser;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +27,13 @@ public final class Party {
     @Setter(onParam = @__(@NotNull))
     private RUser leader;
 
+
+    @SneakyThrows
     public Party(@NotNull RUser leader) {
         this.leader = leader;
         this.members.add(leader);
+
+        RPlugin.getInstance().getPartyManager().register(this);
     }
 
     /**
